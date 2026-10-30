@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My English Brain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .glass-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px); }
+        .animate-pop { animation: pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes pop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 h-screen flex justify-center items-center p-2 sm:p-4">
+    
+    <!-- MAIN CONTAINER -->
+    <div class="glass-panel w-full max-w-md h-full max-h-[860px] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-gray-200">
+        
+        <!-- HEADER -->
+        <div class="bg-indigo-600 text-white p-6 rounded-b-[2rem] shadow-lg relative">
+            <div class="flex justify-between items-center mb-3">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight">Tommaso's Brain</h1>
+                    <p class="text-indigo-200 text-xs font-semibold uppercase tracking-wider">Target: C1 Native Proficiency</p>
+                </div>
+                <!-- 15-MIN TIMER -->
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5 bg-indigo-900/60 px-3 py-1.5 rounded-full border border-indigo-400/30">
+                        <i class="fa-solid fa-stopwatch text-yellow-300 text-sm"></i>
+                        <span id="timer-display" class="font-mono font-extrabold text-sm text-yellow-200">15:00</span>
+                        <button id="timer-btn" class="text-[10px] font-bold bg-yellow-400 text-indigo-900 px-2 py-0.5 rounded-full hover:bg-yellow-300 active:scale-95 transition-all">START</button>
+                        <button id="timer-reset-btn" class="text-[10px] text-indigo-300 hover:text-white font-bold">↺</button>
+                    </div>
+                    <div class="flex items-center gap-2 bg-indigo-700/60 px-3 py-1.5 rounded-full border border-indigo-500/30">
+                        <i class="fa-solid fa-fire text-red-400 text-lg animate-bounce"></i>
+                        <span id="streak-badge" class="font-extrabold text-sm">3d Streak</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 bg-indigo-700/40 p-3 rounded-2xl border border-indigo-400/20">
+                <div class="flex justify-between text-xs mb-1.5 font-bold">
+                    <span class="text-indigo-100">Global Mastery Score</span>
+                    <span id="mastery-pct-text" class="text-green-300">0%</span>
+                </div>
+                <div class="w-full bg-indigo-950/80 rounded-full h-2.5 overflow-hidden">
+                    <div id="mastery-progress-bar" class="bg-gradient-to-r from-emerald-400 to-green-300 h-2.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-indigo-200 mt-2 font-medium">
+                    <span><i class="fa-solid fa-brain mr-1"></i><span id="total-cards-label">0</span> Total Cards</span>
+                    <span><i class="fa-solid fa-bell mr-1 text-yellow-300"></i><span id="due-cards-label">0</span> Due Today</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN SCROLLABLE CONTENT -->
+        <div class="flex-1 overflow-y-auto p-5 space-y-5">
+            
+            <!-- HERO: START SESSION BUTTON -->
+            <div id="start-session-btn" class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-indigo-900 rounded-2xl p-5 text-white shadow-xl cursor-pointer hover:shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-between group border border-indigo-400/30">
+                <div>
+                    <span class="text-[10px] uppercase tracking-widest font-extrabold text-indigo-200 bg-indigo-950/50 px-2.5 py-0.5 rounded-full inline-block mb-1.5">Daily Routine</span>
+                    <h2 class="text-xl font-extrabold flex items-center gap-2">
+                        Start Session (15 min)
+                    </h2>
+                    <p class="text-xs text-indigo-200 mt-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-layer-group text-yellow-300"></i>
+                        <span id="session-due-hint">5 Cards Ready for SRS Review</span>
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-white text-indigo-700 rounded-2xl flex items-center justify-center font-bold text-xl shadow-md group-hover:bg-yellow-400 group-hover:text-indigo-950 transition-colors">
+                    <i class="fa-solid fa-play ml-0.5"></i>
+                </div>
+            </div>
+
+            <!-- WEEKLY THEME CARD -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 border-l-4 border-l-yellow-400">
+                <div class="flex justify-between items-center mb-1">
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Weekly Theme</p>
+                    <span id="day-badge" class="text-xs bg-yellow-50 text-yellow-700 font-bold px-2 py-0.5 rounded-md">Task Day</span>
+                </div>
+                <h2 id="weekly-theme-title" class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-earth-europe text-yellow-500"></i>
+                    <span>Geopolitics & Renewable Energy</span>
+                </h2>
+                <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">All AI-generated vocabulary and speaking tasks are strictly contextualized to this topic.</p>
+            </div>
+
+            <!-- TASK / PALINSESTO CARD -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-1">
+                    <p id="schedule-day-name" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Wednesday</p>
+                    <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Palinsesto</span>
+                </div>
+                <h3 id="schedule-title" class="text-xl font-bold text-indigo-600 mb-3">Task Day</h3>
+                
+                <div class="bg-gray-50 rounded-xl p-3 text-xs text-gray-600 mb-3 flex items-start gap-3 border border-gray-100">
+                    <i class="fa-solid fa-headphones mt-0.5 text-indigo-500 text-sm"></i>
+                    <div>
+                        <strong class="text-gray-800">Mission (12 min):</strong> Listen to the BBC interview on European energy diplomacy and identify key idioms.
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <span class="bg-emerald-50 text-emerald-700 text-[11px] px-2.5 py-1 rounded-lg font-semibold border border-emerald-100">+ 4 Vocabs (SRS)</span>
+                    <span class="bg-purple-50 text-purple-700 text-[11px] px-2.5 py-1 rounded-lg font-semibold border border-purple-100">+ 1 Idiom</span>
+                </div>
+            </div>
+
+            <!-- GOAL OVERRIDE CARD -->
+            <div class="bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-300">
+                <div class="flex items-center justify-between mb-1.5">
+                    <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-bullseye text-red-500"></i>
+                        <span>Emergency Crash Course</span>
+                    </h3>
+                    <span id="override-active-tag" class="hidden text-[10px] bg-red-100 text-red-600 font-extrabold px-2 py-0.5 rounded-full">ACTIVE</span>
+                </div>
+                <p class="text-[11px] text-gray-500 mb-2.5">Got something in 30 minutes? Get instant survival vocabulary for ANY situation.</p>
+                <div class="flex gap-2">
+                    <input id="override-input" type="text" placeholder="E.g. Pumpkin carving with foreign friends tonight..." class="flex-1 text-xs p-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:border-indigo-500 shadow-sm">
+                    <button id="override-set-btn" class="bg-red-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-red-700 active:scale-95 transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> GO
+                    </button>
+                </div>
+
+                <!-- CRASH COURSE RESULTS -->
+                <div id="crash-course-results" class="hidden mt-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <p id="crash-course-title" class="text-[10px] font-extrabold text-red-600 uppercase tracking-wider"></p>
+                        <button id="crash-course-close" class="text-gray-400 hover:text-gray-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="crash-course-items" class="space-y-1.5 max-h-[300px] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+
+            <!-- DAILY WORD CATCHER -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 border-l-4 border-l-emerald-400">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-extrabold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-emerald-500"></i>
+                        <span>Daily Word Catcher</span>
+                    </h3>
+                    <span id="daily-word-count" class="text-[10px] font-extrabold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">0 today</span>
+                </div>
+                <p class="text-[11px] text-gray-500 mb-2.5">Heard a word you don't know? Capture it now — it goes straight into your SRS database.</p>
+                <div class="space-y-2">
+                    <input id="word-input" type="text" placeholder="Word or phrase (e.g. 'to pull off', 'resilient', 'innit')..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500">
+                    <input id="word-context" type="text" placeholder="Where did you hear it? (optional — e.g. 'in a movie', 'podcast')..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500">
+                    <div class="flex gap-2">
+                        <button id="word-save-btn" class="flex-1 bg-gray-100 text-gray-700 text-xs font-bold py-2 rounded-xl border border-gray-200 hover:bg-gray-200 active:scale-95 transition-all">
+                            <i class="fa-solid fa-floppy-disk mr-1"></i>Quick Save
+                        </button>
+                        <button id="word-analyze-btn" class="flex-1 bg-emerald-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-emerald-700 active:scale-95 transition-all">
+                            <i class="fa-solid fa-brain mr-1"></i>Analyze + Save
+                        </button>
+                    </div>
+                </div>
+                <!-- Word Analysis Result -->
+                <div id="word-analysis-box" class="hidden mt-3 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs space-y-1.5 animate-pop">
+                    <div class="flex items-center gap-2">
+                        <span id="word-analysis-ipa" class="font-mono text-sm font-bold text-indigo-700"></span>
+                        <span id="word-analysis-register" class="text-[9px] uppercase font-extrabold px-2 py-0.5 rounded bg-indigo-100 text-indigo-600"></span>
+                    </div>
+                    <p id="word-analysis-meaning" class="text-gray-700 font-semibold"></p>
+                    <p id="word-analysis-collocations" class="text-gray-500 italic"></p>
+                    <p id="word-analysis-example" class="text-indigo-700 italic bg-white/70 p-1.5 rounded-lg border border-indigo-100"></p>
+                </div>
+                <!-- Recent words chips -->
+                <div id="word-chips" class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-100"></div>
+            </div>
+
+            <!-- LISTENING CHALLENGE (Connected Speech) -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 border-l-4 border-l-purple-400">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-extrabold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-headphones text-purple-500"></i>
+                        <span>Listening Challenge</span>
+                    </h3>
+                    <select id="listening-difficulty" class="text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg px-2 py-1 focus:outline-none">
+                        <option value="clear">Clear (0.8x)</option>
+                        <option value="natural" selected>Natural (1.0x)</option>
+                        <option value="native">Native Speed (1.2x)</option>
+                    </select>
+                </div>
+                <p class="text-[11px] text-gray-500 mb-2.5">A secret sentence is generated and played. Transcribe what you hear — then AI shows you what you missed and <em>why</em>.</p>
+                <div class="flex gap-2 mb-2">
+                    <button id="listening-generate-btn" class="flex-1 bg-purple-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-purple-700 active:scale-95 transition-all">
+                        <i class="fa-solid fa-shuffle mr-1"></i>New Secret Sentence
+                    </button>
+                    <button id="listening-replay-btn" disabled class="px-3 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl border border-gray-200 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+                <input id="listening-guess" type="text" placeholder="Type exactly what you heard..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-purple-500 mb-2" disabled>
+                <button id="listening-verify-btn" disabled class="w-full bg-gray-200 text-gray-400 text-xs font-bold py-2 rounded-xl disabled:cursor-not-allowed transition-all">
+                    Verify &amp; See Breakdown
+                </button>
+                <!-- Results -->
+                <div id="listening-result" class="hidden mt-3 space-y-2 animate-pop">
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
+                            <div id="listening-score-bar" class="bg-purple-500 h-2 rounded-full transition-all duration-700" style="width:0%"></div>
+                        </div>
+                        <span id="listening-score-text" class="text-xs font-extrabold text-purple-600"></span>
+                    </div>
+                    <p id="listening-original" class="text-xs text-gray-800 font-bold bg-gray-50 p-2 rounded-xl border border-gray-200"></p>
+                    <p id="listening-phonetic" class="text-[11px] text-purple-700 italic leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- EXPORT / IMPORT DATABASE -->
+            <div class="bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-300">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-database text-gray-400"></i>
+                        <span>Your Brain Backup</span>
+                    </h3>
+                </div>
+                <p class="text-[11px] text-gray-500 mb-2.5">Export all flashcards + SRS progress as a JSON file. Import it on any device.</p>
+                <div class="flex gap-2">
+                    <button id="export-btn" class="flex-1 text-xs font-bold bg-white border border-gray-300 text-gray-700 py-2 rounded-xl hover:bg-gray-100 active:scale-95 transition-all">
+                        <i class="fa-solid fa-arrow-down mr-1"></i>Export JSON
+                    </button>
+                    <label class="flex-1 text-xs font-bold bg-white border border-gray-300 text-gray-700 py-2 rounded-xl hover:bg-gray-100 cursor-pointer text-center active:scale-95 transition-all">
+                        <i class="fa-solid fa-arrow-up mr-1"></i>Import JSON
+                        <input type="file" id="import-file" accept=".json" class="hidden">
+                    </label>
+                </div>
+                <p id="import-status" class="hidden text-[11px] text-emerald-700 font-semibold mt-2 text-center"></p>
+            </div>
+
+            <!-- DIRECT FEEDBACK (INSTANT AI) -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xs font-extrabold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-indigo-500"></i>
+                        <span>Instant AI Feedback ("No Fluff")</span>
+                    </h3>
+                    <div class="flex gap-2">
+                        <button id="mic-btn" title="Push to talk (Speech Recognition)" class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all border border-indigo-100">
+                            <i class="fa-solid fa-microphone text-xs"></i>
+                        </button>
+                        <button id="send-btn" title="Send to AI" class="w-8 h-8 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 flex items-center justify-center transition-all shadow-sm">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="feedback-input" placeholder="Type or speak a sentence to get instantly evaluated at C1 level..." class="w-full text-xs p-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-none focus:border-indigo-500 resize-none h-20 mb-2.5 transition-all"></textarea>
+                
+                <!-- Box Risposta AI -->
+                <div id="ai-response-box" class="hidden bg-gray-50 p-3 rounded-xl border border-indigo-100 mb-3 text-xs animate-pop">
+                    <p class="font-bold text-indigo-700 mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-robot"></i> <span>Direct Evaluation:</span>
+                    </p>
+                    <p id="ai-correction" class="text-gray-700 mb-2 leading-relaxed font-medium"></p>
+                    <div id="ai-alternatives" class="space-y-1.5"></div>
+                </div>
+
+                <!-- Tone Toggles -->
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Provide alternative styles:</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input type="checkbox" value="Informal" class="tone-cb rounded text-indigo-600 focus:ring-0" checked>
+                            <span>Informal</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input type="checkbox" value="Formal" class="tone-cb rounded text-indigo-600 focus:ring-0">
+                            <span>Formal</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input type="checkbox" value="Chat Slang" class="tone-cb rounded text-indigo-600 focus:ring-0" checked>
+                            <span>Chat Slang</span>
+                        </label>
+                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input type="checkbox" value="Business Email" class="tone-cb rounded text-indigo-600 focus:ring-0">
+                            <span>Business Email</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= INTERACTIVE SESSION MODAL ================= -->
+    <div id="session-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-3">
+        <div class="bg-white w-full max-w-md h-[90vh] max-h-[750px] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative animate-pop border border-gray-200">
+            
+            <!-- MODAL HEADER -->
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <span id="session-type-pill" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">Vocabulary</span>
+                    <span id="session-counter" class="text-xs font-bold text-gray-500">Q 1/5</span>
+                </div>
+                <div class="w-1/3 bg-gray-200 h-2 rounded-full overflow-hidden">
+                    <div id="session-progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                </div>
+                <button id="close-session-btn" class="text-gray-400 hover:text-gray-700 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- MODAL BODY -->
+            <div class="flex-1 overflow-y-auto p-5 flex flex-col justify-between">
+                
+                <!-- QUESTION AREA -->
+                <div id="question-container">
+                    <p id="q-instruction" class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">Select the correct term:</p>
+                    <h3 id="q-prompt" class="text-base font-bold text-gray-800 leading-snug mb-5">
+                        During the summit, all delegates were noticeably tense.
+                    </h3>
+
+                    <!-- MULTIPLE CHOICE CONTAINER -->
+                    <div id="mc-container" class="space-y-2.5">
+                        <!-- Options injected by JS -->
+                    </div>
+
+                    <!-- FILL IN THE BLANK CONTAINER -->
+                    <div id="fitb-container" class="hidden space-y-3">
+                        <input id="fitb-input" type="text" placeholder="Type your answer here..." class="w-full p-3.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-indigo-600 shadow-sm">
+                        <p id="fitb-hint" class="text-xs text-gray-400 italic"></p>
+                        <button id="fitb-check-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-indigo-700 active:scale-95 transition-all">Check Answer</button>
+                    </div>
+
+                    <!-- SPEAKING CONTAINER -->
+                    <div id="speaking-container" class="hidden flex flex-col items-center py-4 space-y-4">
+                        <p class="text-xs text-gray-500 text-center">Speak this sentence clearly using native C1 pronunciation:</p>
+                        <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl w-full text-center relative">
+                            <p id="speaking-target-text" class="text-sm font-bold text-indigo-950 leading-relaxed"></p>
+                            <button id="tts-listen-btn" class="mt-2 text-xs text-indigo-600 font-bold hover:underline flex items-center justify-center gap-1 mx-auto">
+                                <i class="fa-solid fa-volume-high"></i> Listen to Native Pronunciation
+                            </button>
+                        </div>
+
+                        <!-- BIG MIC BUTTON -->
+                        <div class="py-2">
+                            <button id="speaking-mic-btn" class="w-20 h-20 rounded-full bg-indigo-600 text-white flex items-center justify-center text-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                        </div>
+                        <div class="w-full">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase text-center mb-1">Your Transcription:</p>
+                            <p id="speaking-live-transcript" class="text-xs text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-200 min-h-[40px] text-center italic">Tap microphone to begin speaking...</p>
+                        </div>
+                        <button id="speaking-submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-indigo-700 active:scale-95 transition-all">Evaluate Pronunciation</button>
+                    </div>
+                </div>
+
+                <!-- EXPLANATION / FEEDBACK DRAWER (Appears on answer) -->
+                <div id="feedback-drawer" class="hidden mt-4 p-4 rounded-2xl border animate-pop">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <i id="feedback-icon" class="fa-solid text-base"></i>
+                        <h4 id="feedback-title" class="font-extrabold text-sm"></h4>
+                    </div>
+                    <p id="feedback-text" class="text-xs text-gray-700 leading-relaxed mb-3"></p>
+                    <button id="next-question-btn" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-black active:scale-95 transition-all">
+                        Continue <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- SUMMARY VIEW (Hidden until session finishes) -->
+            <div id="session-summary" class="hidden absolute inset-0 bg-white p-6 flex flex-col justify-between items-center text-center animate-pop z-20">
+                <div class="my-auto">
+                    <div class="w-20 h-20 bg-yellow-100 text-yellow-500 rounded-3xl flex items-center justify-center text-4xl shadow-inner mx-auto mb-4 animate-bounce">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-900">Session Complete!</h2>
+                    <p class="text-xs text-gray-500 mt-1 mb-6">Your brain retention curve has been updated.</p>
+
+                    <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-6">
+                        <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-2xl">
+                            <span class="text-xs text-gray-500 block">Score</span>
+                            <span id="summary-score" class="text-xl font-extrabold text-indigo-700">5/5</span>
+                        </div>
+                        <div class="bg-green-50 border border-green-100 p-3 rounded-2xl">
+                            <span class="text-xs text-gray-500 block">Global Mastery</span>
+                            <span id="summary-mastery" class="text-xl font-extrabold text-green-600">+1.4%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="finish-session-btn" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl text-sm shadow-xl hover:bg-indigo-700 active:scale-95 transition-all">
+                    Return to Dashboard
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // DOM Elements
+        const masteryPctText = document.getElementById('mastery-pct-text');
+        const masteryProgressBar = document.getElementById('mastery-progress-bar');
+        const totalCardsLabel = document.getElementById('total-cards-label');
+        const dueCardsLabel = document.getElementById('due-cards-label');
+        const weeklyThemeTitle = document.getElementById('weekly-theme-title');
+        const dayBadge = document.getElementById('day-badge');
+        const scheduleDayName = document.getElementById('schedule-day-name');
+        const scheduleTitle = document.getElementById('schedule-title');
+        const overrideInput = document.getElementById('override-input');
+        const overrideSetBtn = document.getElementById('override-set-btn');
+        const overrideActiveTag = document.getElementById('override-active-tag');
+        const startSessionBtn = document.getElementById('start-session-btn');
+        const sessionDueHint = document.getElementById('session-due-hint');
+
+        // Modal Elements
+        const sessionModal = document.getElementById('session-modal');
+        const closeSessionBtn = document.getElementById('close-session-btn');
+        const sessionTypePill = document.getElementById('session-type-pill');
+        const sessionCounter = document.getElementById('session-counter');
+        const sessionProgressBar = document.getElementById('session-progress-bar');
+        const qInstruction = document.getElementById('q-instruction');
+        const qPrompt = document.getElementById('q-prompt');
+        const mcContainer = document.getElementById('mc-container');
+        const fitbContainer = document.getElementById('fitb-container');
+        const fitbInput = document.getElementById('fitb-input');
+        const fitbHint = document.getElementById('fitb-hint');
+        const fitbCheckBtn = document.getElementById('fitb-check-btn');
+        const speakingContainer = document.getElementById('speaking-container');
+        const speakingTargetText = document.getElementById('speaking-target-text');
+        const speakingMicBtn = document.getElementById('speaking-mic-btn');
+        const speakingLiveTranscript = document.getElementById('speaking-live-transcript');
+        const speakingSubmitBtn = document.getElementById('speaking-submit-btn');
+        const ttsListenBtn = document.getElementById('tts-listen-btn');
+        const feedbackDrawer = document.getElementById('feedback-drawer');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const sessionSummary = document.getElementById('session-summary');
+        const summaryScore = document.getElementById('summary-score');
+        const summaryMastery = document.getElementById('summary-mastery');
+        const finishSessionBtn = document.getElementById('finish-session-btn');
+
+        // State variables
+        let currentQuestions = [];
+        let currentQIndex = 0;
+        let sessionResults = [];
+        let answeredCurrent = false;
+
+        // --- FETCH DASHBOARD DATA ---
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/dashboard');
+                const data = await res.json();
+                if (data.status === 'success') {
+                    masteryPctText.innerText = `${data.global_mastery}%`;
+                    masteryProgressBar.style.width = `${Math.min(100, data.global_mastery)}%`;
+                    totalCardsLabel.innerText = data.total_cards;
+                    dueCardsLabel.innerText = data.due_cards;
+                    sessionDueHint.innerText = `${data.due_cards} Cards Due for Review`;
+
+                    weeklyThemeTitle.querySelector('span').innerText = data.theme;
+                    dayBadge.innerText = data.day_type;
+                    scheduleDayName.innerText = data.day_name;
+                    scheduleTitle.innerText = data.day_type;
+
+                    if (data.override_goal) {
+                        overrideInput.value = data.override_goal;
+                        overrideActiveTag.classList.remove('hidden');
+                    } else {
+                        overrideActiveTag.classList.add('hidden');
+                    }
+                }
+            } catch (err) {
+                console.error("Failed loading dashboard:", err);
+            }
+        }
+
+        const crashCourseResults = document.getElementById('crash-course-results');
+        const crashCourseTitle = document.getElementById('crash-course-title');
+        const crashCourseClose = document.getElementById('crash-course-close');
+        const crashCourseItems = document.getElementById('crash-course-items');
+
+        crashCourseClose.addEventListener('click', () => {
+            crashCourseResults.classList.add('hidden');
+        });
+
+        window.speakText = function(text) {
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US';
+                u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            }
+        };
+
+        // --- OVERRIDE & CRASH COURSE HANDLER ---
+        overrideSetBtn.addEventListener('click', async () => {
+            const goal = overrideInput.value.trim();
+            if (!goal) return;
+
+            const originalBtn = overrideSetBtn.innerHTML;
+            overrideSetBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
+            overrideSetBtn.disabled = true;
+
+            try {
+                // 1. Update override state
+                await fetch('/api/override', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ goal })
+                });
+                loadDashboard();
+
+                // 2. Fetch instant situational crash course
+                const res = await fetch('/api/crash-course', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ situation: goal })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success' && data.items && data.items.length > 0) {
+                    crashCourseTitle.innerText = `🚨 Crash Course: ${data.situation_summary || goal}`;
+                    crashCourseItems.innerHTML = '';
+
+                    data.items.forEach(it => {
+                        const cleanWord = it.word_or_phrase.replace(/'/g, "\\'");
+                        const card = document.createElement('div');
+                        card.className = "bg-white p-2.5 rounded-xl border border-red-100 shadow-2xs hover:border-red-300 transition-all";
+                        card.innerHTML = `
+                            <div class="flex justify-between items-start gap-2 mb-1">
+                                <span class="text-xs font-black text-gray-900 leading-tight">${it.word_or_phrase}</span>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-red-50 text-red-600">${it.type || 'vocab'}</span>
+                                    <button class="text-gray-400 hover:text-indigo-600 text-xs p-0.5" onclick="speakText('${cleanWord}')" title="Listen">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-gray-600 font-medium">${it.meaning_it}</p>
+                            ${it.example_sentence ? `<p class="text-[10px] text-indigo-700 italic mt-1 bg-indigo-50/70 p-1.5 rounded-lg border border-indigo-100/60">"${it.example_sentence}"</p>` : ''}
+                        `;
+                        crashCourseItems.appendChild(card);
+                    });
+
+                    crashCourseResults.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error("Crash course error:", e);
+                alert("Could not generate crash course. Please check connection.");
+            } finally {
+                overrideSetBtn.innerHTML = originalBtn;
+                overrideSetBtn.disabled = false;
+            }
+        });
+
+        // --- START DAILY SESSION FLOW ---
+        startSessionBtn.addEventListener('click', async () => {
+            startSessionBtn.classList.add('opacity-70', 'pointer-events-none');
+            const originalContent = startSessionBtn.innerHTML;
+            startSessionBtn.innerHTML = "<div class='flex items-center gap-2'><i class='fa-solid fa-spinner fa-spin text-xl'></i> Preparing AI Session...</div>";
+
+            try {
+                const res = await fetch('/api/session/start');
+                const data = await res.json();
+                if (data.status === 'success' && data.questions && data.questions.length > 0) {
+                    currentQuestions = data.questions;
+                    currentQIndex = 0;
+                    sessionResults = [];
+                    sessionSummary.classList.add('hidden');
+                    sessionModal.classList.remove('hidden');
+                    renderQuestion();
+                } else {
+                    alert("Could not load session questions. Please verify database.");
+                }
+            } catch (err) {
+                alert("Connection error loading session.");
+            } finally {
+                startSessionBtn.innerHTML = originalContent;
+                startSessionBtn.classList.remove('opacity-70', 'pointer-events-none');
+            }
+        });
+
+        closeSessionBtn.addEventListener('click', () => {
+            if (confirm("Quit session? Progress on this session will not be saved.")) {
+                sessionModal.classList.add('hidden');
+            }
+        });
+
+        // --- RENDER CURRENT QUESTION ---
+        function renderQuestion() {
+            answeredCurrent = false;
+            feedbackDrawer.classList.add('hidden');
+            const q = currentQuestions[currentQIndex];
+
+            // Progress Header
+            sessionCounter.innerText = `Q ${currentQIndex + 1}/${currentQuestions.length}`;
+            const pct = ((currentQIndex + 1) / currentQuestions.length) * 100;
+            sessionProgressBar.style.width = `${pct}%`;
+            sessionTypePill.innerText = q.type.replace('_', ' ');
+
+            qInstruction.innerText = q.instruction;
+            qPrompt.innerText = q.prompt;
+
+            // Reset containers
+            mcContainer.classList.add('hidden');
+            fitbContainer.classList.add('hidden');
+            speakingContainer.classList.add('hidden');
+
+            if (q.type === 'multiple_choice') {
+                mcContainer.classList.remove('hidden');
+                mcContainer.innerHTML = '';
+                q.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left p-3.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-[0.99] flex justify-between items-center group";
+                    btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-gray-300 group-hover:text-indigo-400"></i>`;
+                    btn.addEventListener('click', () => evaluateMC(btn, opt, q));
+                    mcContainer.appendChild(btn);
+                });
+            } else if (q.type === 'fill_blank') {
+                fitbContainer.classList.remove('hidden');
+                fitbInput.value = '';
+                fitbInput.disabled = false;
+                fitbHint.innerText = q.hint || '';
+                fitbInput.focus();
+            } else if (q.type === 'speaking') {
+                speakingContainer.classList.remove('hidden');
+                speakingTargetText.innerText = `"${q.correct_answer || q.prompt}"`;
+                speakingLiveTranscript.innerText = "Tap microphone to speak...";
+                speakingLiveTranscript.classList.remove('text-indigo-700', 'font-semibold');
+            }
+        }
+
+        // --- EVALUATION LOGIC ---
+        function evaluateMC(btn, chosen, q) {
+            if (answeredCurrent) return;
+            answeredCurrent = true;
+
+            const isCorrect = chosen.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+            sessionResults.push({ card_id: q.card_id, success: isCorrect });
+
+            // Visual feedback on buttons
+            const allBtns = mcContainer.querySelectorAll('button');
+            allBtns.forEach(b => {
+                b.disabled = true;
+                const optText = b.querySelector('span').innerText.trim().toLowerCase();
+                if (optText === q.correct_answer.trim().toLowerCase()) {
+                    b.className = "w-full text-left p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-xs font-bold text-emerald-800 flex justify-between items-center";
+                    b.querySelector('i').className = "fa-solid fa-circle-check text-emerald-600";
+                } else if (b === btn && !isCorrect) {
+                    b.className = "w-full text-left p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-xs font-bold text-rose-800 flex justify-between items-center";
+                    b.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-600";
+                }
+            });
+
+            showFeedbackDrawer(isCorrect, q.explanation);
+        }
+
+        // Fill in the blank
+        fitbCheckBtn.addEventListener('click', () => {
+            if (answeredCurrent) return;
+            const q = currentQuestions[currentQIndex];
+            const answer = fitbInput.value.trim().toLowerCase();
+            const correct = q.correct_answer.trim().toLowerCase();
+            if (!answer) return;
+
+            answeredCurrent = true;
+            fitbInput.disabled = true;
+            const isCorrect = (answer === correct) || (correct.includes(answer) && answer.length > 3);
+            sessionResults.push({ card_id: q.card_id, success: isCorrect });
+
+            if (isCorrect) {
+                fitbInput.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-800', 'font-bold');
+            } else {
+                fitbInput.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-800', 'font-bold');
+            }
+
+            showFeedbackDrawer(isCorrect, q.explanation);
+        });
+
+        fitbInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') fitbCheckBtn.click();
+        });
+
+        // Speaking evaluation
+        let speakingRecognition = null;
+        let isSpeakingRecording = false;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            speakingRecognition = new SpeechRec();
+            speakingRecognition.continuous = true;
+            speakingRecognition.interimResults = true;
+            speakingRecognition.lang = 'en-US';
+
+            speakingMicBtn.addEventListener('click', () => {
+                if (isSpeakingRecording) {
+                    speakingRecognition.stop();
+                } else {
+                    speakingLiveTranscript.innerText = "Listening in English...";
+                    speakingRecognition.start();
+                }
+            });
+
+            speakingRecognition.onstart = () => {
+                isSpeakingRecording = true;
+                speakingMicBtn.classList.remove('bg-indigo-600');
+                speakingMicBtn.classList.add('bg-rose-500', 'animate-pulse');
+            };
+
+            speakingRecognition.onresult = (event) => {
+                let trans = '';
+                for (let i = 0; i < event.results.length; ++i) {
+                    trans += event.results[i][0].transcript;
+                }
+                speakingLiveTranscript.innerText = trans;
+                speakingLiveTranscript.classList.add('text-indigo-700', 'font-semibold');
+            };
+
+            speakingRecognition.onend = () => {
+                isSpeakingRecording = false;
+                speakingMicBtn.classList.remove('bg-rose-500', 'animate-pulse');
+                speakingMicBtn.classList.add('bg-indigo-600');
+            };
+        }
+
+        speakingSubmitBtn.addEventListener('click', () => {
+            if (answeredCurrent) return;
+            const q = currentQuestions[currentQIndex];
+            const transcript = speakingLiveTranscript.innerText.toLowerCase();
+            const target = (q.target_item || q.correct_answer || '').toLowerCase();
+            
+            // Check if user spoke target term or key elements
+            const terms = target.split(' ').filter(w => w.length > 2);
+            let matches = terms.filter(t => transcript.includes(t));
+            const isCorrect = matches.length >= Math.ceil(terms.length * 0.6) || transcript.includes(target);
+
+            answeredCurrent = true;
+            sessionResults.push({ card_id: q.card_id, success: isCorrect });
+            showFeedbackDrawer(isCorrect, q.explanation);
+        });
+
+        // TTS Pronunciation sample
+        ttsListenBtn.addEventListener('click', () => {
+            const q = currentQuestions[currentQIndex];
+            const textToSpeak = q.correct_answer || q.prompt;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        });
+
+        function showFeedbackDrawer(isCorrect, explanation) {
+            feedbackDrawer.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'bg-rose-50', 'border-rose-200');
+            if (isCorrect) {
+                feedbackDrawer.classList.add('bg-emerald-50', 'border-emerald-200');
+                feedbackIcon.className = "fa-solid fa-circle-check text-emerald-600";
+                feedbackTitle.innerText = "Accurate & Correct!";
+                feedbackTitle.className = "font-extrabold text-xs text-emerald-800";
+            } else {
+                feedbackDrawer.classList.add('bg-rose-50', 'border-rose-200');
+                feedbackIcon.className = "fa-solid fa-triangle-exclamation text-rose-600";
+                feedbackTitle.innerText = "Incorrect (SRS Triggered)";
+                feedbackTitle.className = "font-extrabold text-xs text-rose-800";
+            }
+            feedbackText.innerText = explanation;
+        }
+
+        // NEXT QUESTION / FINISH SESSION
+        nextQuestionBtn.addEventListener('click', async () => {
+            currentQIndex++;
+            if (currentQIndex < currentQuestions.length) {
+                renderQuestion();
+            } else {
+                // Submit session to server
+                try {
+                    const res = await fetch('/api/session/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ results: sessionResults })
+                    });
+                    const data = await res.json();
+                    
+                    const correctCount = sessionResults.filter(r => r.success).length;
+                    summaryScore.innerText = `${correctCount}/${sessionResults.length}`;
+                    summaryMastery.innerText = `${data.new_global_mastery}%`;
+                    sessionSummary.classList.remove('hidden');
+                } catch (err) {
+                    alert("Error submitting session results.");
+                    sessionModal.classList.add('hidden');
+                }
+            }
+        });
+
+        finishSessionBtn.addEventListener('click', () => {
+            sessionModal.classList.add('hidden');
+            loadDashboard();
+        });
+
+        // --- DIRECT FEEDBACK MODULE (MIC + TEXTAREA) ---
+        const micBtn = document.getElementById('mic-btn');
+        const sendBtn = document.getElementById('send-btn');
+        const feedbackInput = document.getElementById('feedback-input');
+        const responseBox = document.getElementById('ai-response-box');
+        const aiCorrection = document.getElementById('ai-correction');
+        const aiAlternatives = document.getElementById('ai-alternatives');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new SpeechRec();
+            rec.continuous = true;
+            rec.interimResults = true;
+            rec.lang = 'en-US';
+
+            let isRec = false;
+            let fullText = '';
+
+            micBtn.addEventListener('click', () => {
+                if (isRec) {
+                    rec.stop();
+                    return;
+                }
+                fullText = feedbackInput.value;
+                rec.start();
+            });
+
+            rec.onstart = () => {
+                isRec = true;
+                micBtn.className = "w-8 h-8 rounded-full bg-red-500 text-white animate-pulse flex items-center justify-center";
+                feedbackInput.placeholder = "Listening in English... Speak continuously!";
+            };
+
+            rec.onresult = (event) => {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) fullText += event.results[i][0].transcript + ' ';
+                    else interim += event.results[i][0].transcript;
+                }
+                feedbackInput.value = fullText + interim;
+            };
+
+            rec.onend = () => {
+                isRec = false;
+                micBtn.className = "w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all border border-indigo-100";
+            };
+        }
+
+        sendBtn.addEventListener('click', async () => {
+            const sentence = feedbackInput.value.trim();
+            if (!sentence) return;
+
+            const checkboxes = document.querySelectorAll('.tone-cb:checked');
+            const tones = Array.from(checkboxes).map(cb => cb.value);
+
+            responseBox.classList.remove('hidden');
+            aiCorrection.innerHTML = "<i class='fa-solid fa-spinner fa-spin text-indigo-600 mr-1.5'></i> AI evaluating at C1 standard...";
+            aiAlternatives.innerHTML = "";
+
+            try {
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sentence, tones })
+                });
+                const data = await response.json();
+                aiCorrection.innerText = data.correction;
+
+                let altsHTML = "";
+                for (const [tone, altText] of Object.entries(data.alternatives || {})) {
+                    altsHTML += `<div class="bg-white p-2 rounded-lg border border-gray-100 shadow-2xs">
+                                    <span class="text-[10px] font-extrabold text-indigo-600 uppercase tracking-wider block">${tone}:</span> 
+                                    <span class="text-xs text-gray-800 font-medium">${altText}</span>
+                                 </div>`;
+                }
+                aiAlternatives.innerHTML = altsHTML;
+            } catch (err) {
+                aiCorrection.innerHTML = "<span class='text-red-500 font-semibold'>Connection error with backend server.</span>";
+            }
+        });
+
+        // Initialize dashboard on page load
+        loadDashboard();
+
+        // ═══════════════════════════════════════════════
+        //  FEATURE 1: 15-MINUTE TIMER
+        // ═══════════════════════════════════════════════
+        let timerSeconds = 900;
+        let timerInterval = null;
+        const timerDisplay = document.getElementById('timer-display');
+        const timerBtn = document.getElementById('timer-btn');
+        const timerResetBtn = document.getElementById('timer-reset-btn');
+
+        function updateTimerDisplay() {
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            timerDisplay.innerText = `${m}:${s}`;
+            // Color shift as time runs out
+            if (timerSeconds <= 120) {
+                timerDisplay.className = 'font-mono font-extrabold text-sm text-red-300';
+            } else if (timerSeconds <= 300) {
+                timerDisplay.className = 'font-mono font-extrabold text-sm text-orange-300';
+            } else {
+                timerDisplay.className = 'font-mono font-extrabold text-sm text-yellow-200';
+            }
+        }
+
+        timerBtn.addEventListener('click', () => {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timerBtn.innerText = 'START';
+                timerBtn.className = 'text-[10px] font-bold bg-yellow-400 text-indigo-900 px-2 py-0.5 rounded-full hover:bg-yellow-300 active:scale-95 transition-all';
+            } else {
+                if (timerSeconds <= 0) timerSeconds = 900;
+                timerBtn.innerText = 'PAUSE';
+                timerBtn.className = 'text-[10px] font-bold bg-white text-indigo-900 px-2 py-0.5 rounded-full hover:bg-gray-100 active:scale-95 transition-all';
+                timerInterval = setInterval(() => {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    if (timerSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        timerBtn.innerText = 'START';
+                        timerDisplay.innerText = 'DONE!';
+                        timerDisplay.className = 'font-mono font-extrabold text-sm text-green-300';
+                    }
+                }, 1000);
+            }
+        });
+
+        timerResetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerSeconds = 900;
+            timerBtn.innerText = 'START';
+            timerBtn.className = 'text-[10px] font-bold bg-yellow-400 text-indigo-900 px-2 py-0.5 rounded-full hover:bg-yellow-300 active:scale-95 transition-all';
+            updateTimerDisplay();
+        });
+
+        // ═══════════════════════════════════════════════
+        //  FEATURE 2: DAILY WORD CATCHER
+        // ═══════════════════════════════════════════════
+        const wordInput = document.getElementById('word-input');
+        const wordContext = document.getElementById('word-context');
+        const wordSaveBtn = document.getElementById('word-save-btn');
+        const wordAnalyzeBtn = document.getElementById('word-analyze-btn');
+        const wordAnalysisBox = document.getElementById('word-analysis-box');
+        const wordChips = document.getElementById('word-chips');
+        const dailyWordCount = document.getElementById('daily-word-count');
+
+        // Load chips from session storage (words added today)
+        let todayWords = JSON.parse(sessionStorage.getItem('todayWords') || '[]');
+        renderWordChips();
+
+        function renderWordChips() {
+            dailyWordCount.innerText = `${todayWords.length} today`;
+            wordChips.innerHTML = todayWords.slice(-10).reverse().map(w =>
+                `<span class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">${w}</span>`
+            ).join('');
+        }
+
+        async function doSaveWord(analyze) {
+            const word = wordInput.value.trim();
+            if (!word) return;
+
+            const btn = analyze ? wordAnalyzeBtn : wordSaveBtn;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/daily-word', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        word,
+                        context: wordContext.value.trim(),
+                        analyze
+                    })
+                });
+                const data = await res.json();
+
+                // Add to chips
+                if (!todayWords.includes(word)) {
+                    todayWords.push(word);
+                    sessionStorage.setItem('todayWords', JSON.stringify(todayWords));
+                }
+                renderWordChips();
+
+                if (analyze && data.analysis) {
+                    const a = data.analysis;
+                    wordAnalysisBox.classList.remove('hidden');
+                    document.getElementById('word-analysis-ipa').innerText = a.ipa || '';
+                    document.getElementById('word-analysis-register').innerText = a.word_register || '';
+                    document.getElementById('word-analysis-meaning').innerText = a.meaning_it || '';
+                    document.getElementById('word-analysis-collocations').innerText = '→ ' + (a.collocations || []).join(' · ');
+                    document.getElementById('word-analysis-example').innerText = '"' + (a.example || '') + '"';
+                } else if (!analyze) {
+                    wordAnalysisBox.classList.add('hidden');
+                }
+
+                wordInput.value = '';
+                wordContext.value = '';
+                loadDashboard(); // refresh card count in header
+            } catch(e) {
+                alert('Error saving word. Is the server running?');
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }
+
+        wordSaveBtn.addEventListener('click', () => doSaveWord(false));
+        wordAnalyzeBtn.addEventListener('click', () => doSaveWord(true));
+        wordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSaveWord(true); });
+
+        // ═══════════════════════════════════════════════
+        //  FEATURE 3: LISTENING CHALLENGE (Connected Speech)
+        // ═══════════════════════════════════════════════
+        const listeningGenerateBtn = document.getElementById('listening-generate-btn');
+        const listeningReplayBtn = document.getElementById('listening-replay-btn');
+        const listeningGuess = document.getElementById('listening-guess');
+        const listeningVerifyBtn = document.getElementById('listening-verify-btn');
+        const listeningResult = document.getElementById('listening-result');
+        const listeningDifficulty = document.getElementById('listening-difficulty');
+        let currentListeningSentence = '';
+        let currentListeningNotes = '';
+
+        function playSentence(text, difficulty) {
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-GB'; // British accent for more connected speech challenge
+            const rateMap = { clear: 0.8, natural: 1.0, native: 1.2 };
+            utter.rate = rateMap[difficulty] || 1.0;
+            window.speechSynthesis.speak(utter);
+        }
+
+        listeningGenerateBtn.addEventListener('click', async () => {
+            const difficulty = listeningDifficulty.value;
+            const originalHtml = listeningGenerateBtn.innerHTML;
+            listeningGenerateBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin mr-1'></i>Generating...";
+            listeningGenerateBtn.disabled = true;
+            listeningResult.classList.add('hidden');
+            listeningGuess.value = '';
+
+            try {
+                // Use the current weekly theme as context
+                const theme = document.querySelector('#weekly-theme-title span')?.innerText || 'General conversation';
+                const res = await fetch('/api/listening-challenge', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: theme, difficulty })
+                });
+                const data = await res.json();
+                if (data.sentence) {
+                    currentListeningSentence = data.sentence;
+                    currentListeningNotes = data.connected_speech_notes || '';
+                    // Play immediately
+                    playSentence(currentListeningSentence, difficulty);
+                    // Enable controls
+                    listeningReplayBtn.disabled = false;
+                    listeningReplayBtn.className = 'px-3 bg-purple-100 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 hover:bg-purple-200 active:scale-95 transition-all';
+                    listeningGuess.disabled = false;
+                    listeningGuess.placeholder = 'Type exactly what you heard...';
+                    listeningGuess.focus();
+                    listeningVerifyBtn.disabled = false;
+                    listeningVerifyBtn.className = 'w-full bg-purple-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-purple-700 active:scale-95 transition-all';
+                }
+            } catch(e) {
+                alert('Error generating listening challenge.');
+            } finally {
+                listeningGenerateBtn.innerHTML = originalHtml;
+                listeningGenerateBtn.disabled = false;
+            }
+        });
+
+        listeningReplayBtn.addEventListener('click', () => {
+            if (currentListeningSentence) playSentence(currentListeningSentence, listeningDifficulty.value);
+        });
+
+        listeningGuess.addEventListener('keydown', (e) => { if (e.key === 'Enter') listeningVerifyBtn.click(); });
+
+        listeningVerifyBtn.addEventListener('click', async () => {
+            const guess = listeningGuess.value.trim();
+            if (!guess || !currentListeningSentence) return;
+
+            const originalHtml = listeningVerifyBtn.innerHTML;
+            listeningVerifyBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
+            listeningVerifyBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/listening-verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ original: currentListeningSentence, guess })
+                });
+                const data = await res.json();
+                listeningResult.classList.remove('hidden');
+                document.getElementById('listening-score-bar').style.width = `${data.score_pct}%`;
+                document.getElementById('listening-score-text').innerText = `${data.score_pct}%`;
+                document.getElementById('listening-original').innerText = `✓ "${currentListeningSentence}"`;
+                let explanation = data.phonetic_explanation || '';
+                if (currentListeningNotes) explanation = `${explanation}\n\n🔊 Connected Speech: ${currentListeningNotes}`;
+                document.getElementById('listening-phonetic').innerText = explanation;
+            } catch(e) {
+                document.getElementById('listening-original').innerText = `✓ Original: "${currentListeningSentence}"`;
+                listeningResult.classList.remove('hidden');
+            } finally {
+                listeningVerifyBtn.innerHTML = originalHtml;
+                listeningVerifyBtn.disabled = false;
+            }
+        });
+
+        // ═══════════════════════════════════════════════
+        //  FEATURE 4: EXPORT / IMPORT DATABASE
+        // ═══════════════════════════════════════════════
+        document.getElementById('export-btn').addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/export');
+                const data = await res.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `my_english_brain_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+            } catch(e) {
+                alert('Export failed. Is the server running?');
+            }
+        });
+
+        document.getElementById('import-file').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const status = document.getElementById('import-status');
+            status.innerText = 'Importing...';
+            status.className = 'text-[11px] text-indigo-700 font-semibold mt-2 text-center';
+            status.classList.remove('hidden');
+            try {
+                const text = await file.text();
+                const parsed = JSON.parse(text);
+                const res = await fetch('/api/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(parsed)
+                });
+                const data = await res.json();
+                status.innerText = `✓ Imported ${data.imported} cards (${data.skipped_duplicates} duplicates skipped).`;
+                status.className = 'text-[11px] text-emerald-700 font-semibold mt-2 text-center';
+                loadDashboard();
+            } catch(e) {
+                status.innerText = 'Import failed. Check file format.';
+                status.className = 'text-[11px] text-red-600 font-semibold mt-2 text-center';
+            }
+        });
+
+    </script>
+</body>
+</html>
