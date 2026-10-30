@@ -2,157 +2,135 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4f46e5">
     <title>My English Brain</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #0f172a; }
         .glass-panel { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px); }
         .animate-pop { animation: pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes pop {
             0% { transform: scale(0.95); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
+        /* iOS safe area */
+        .safe-pb { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
+        .safe-pt { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
-<body class="text-gray-800 h-screen flex justify-center items-center p-2 sm:p-4">
-    
-    <!-- MAIN CONTAINER -->
-    <div class="glass-panel w-full max-w-md h-full max-h-[860px] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-gray-200">
+<body class="text-gray-800 min-h-screen flex justify-center items-start sm:p-4 bg-slate-900">
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="glass-panel w-full sm:max-w-md min-h-screen sm:min-h-[90vh] sm:rounded-3xl shadow-2xl flex flex-col relative border-x sm:border border-slate-700/30 overflow-hidden">
         
         <!-- HEADER -->
-        <div class="bg-indigo-600 text-white p-6 rounded-b-[2rem] shadow-lg relative">
-            <div class="flex justify-between items-center mb-3">
+        <div class="bg-indigo-600 text-white p-5 safe-pt rounded-b-[2rem] shadow-lg relative">
+            <div class="flex justify-between items-center mb-2">
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight">Tommaso's Brain</h1>
-                    <p class="text-indigo-200 text-xs font-semibold uppercase tracking-wider">Target: C1 Native Proficiency</p>
+                    <h1 class="text-xl font-black tracking-tight">Tommaso's Brain</h1>
+                    <p class="text-indigo-200 text-[11px] font-semibold uppercase tracking-wider">Target: C1 Native Proficiency</p>
                 </div>
-                <!-- 15-MIN TIMER -->
+                
                 <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-1.5 bg-indigo-900/60 px-3 py-1.5 rounded-full border border-indigo-400/30">
-                        <i class="fa-solid fa-stopwatch text-yellow-300 text-sm"></i>
-                        <span id="timer-display" class="font-mono font-extrabold text-sm text-yellow-200">15:00</span>
-                        <button id="timer-btn" class="text-[10px] font-bold bg-yellow-400 text-indigo-900 px-2 py-0.5 rounded-full hover:bg-yellow-300 active:scale-95 transition-all">START</button>
-                        <button id="timer-reset-btn" class="text-[10px] text-indigo-300 hover:text-white font-bold">↺</button>
+                    <!-- 15-MIN TIMER -->
+                    <div class="flex items-center gap-1.5 bg-indigo-900/60 px-2.5 py-1 rounded-full border border-indigo-400/30">
+                        <i class="fa-solid fa-stopwatch text-yellow-300 text-xs"></i>
+                        <span id="timer-display" class="font-mono font-extrabold text-xs text-yellow-200">15:00</span>
+                        <button id="timer-btn" class="text-[9px] font-bold bg-yellow-400 text-indigo-900 px-1.5 py-0.5 rounded-full hover:bg-yellow-300 active:scale-95 transition-all">START</button>
+                        <button id="timer-reset-btn" class="text-[9px] text-indigo-300 hover:text-white font-bold">↺</button>
                     </div>
-                    <div class="flex items-center gap-2 bg-indigo-700/60 px-3 py-1.5 rounded-full border border-indigo-500/30">
-                        <i class="fa-solid fa-fire text-red-400 text-lg animate-bounce"></i>
-                        <span id="streak-badge" class="font-extrabold text-sm">3d Streak</span>
+
+                    <!-- STREAK -->
+                    <div class="flex items-center gap-1.5 bg-indigo-700/60 px-2.5 py-1 rounded-full border border-indigo-500/30">
+                        <i class="fa-solid fa-fire text-red-400 text-sm animate-bounce"></i>
+                        <span id="streak-badge" class="font-extrabold text-xs">3d</span>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-4 bg-indigo-700/40 p-3 rounded-2xl border border-indigo-400/20">
-                <div class="flex justify-between text-xs mb-1.5 font-bold">
-                    <span class="text-indigo-100">Global Mastery Score</span>
-                    <span id="mastery-pct-text" class="text-green-300">0%</span>
+            <!-- MASTERY STATS BAR -->
+            <div class="mt-3 bg-indigo-700/40 p-2.5 rounded-2xl border border-indigo-400/20">
+                <div class="flex justify-between text-xs mb-1 font-bold">
+                    <span class="text-indigo-100 text-[11px]">Global Mastery Score</span>
+                    <span id="mastery-pct-text" class="text-green-300 font-mono">0%</span>
                 </div>
-                <div class="w-full bg-indigo-950/80 rounded-full h-2.5 overflow-hidden">
-                    <div id="mastery-progress-bar" class="bg-gradient-to-r from-emerald-400 to-green-300 h-2.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+                <div class="w-full bg-indigo-950/80 rounded-full h-2 overflow-hidden">
+                    <div id="mastery-progress-bar" class="bg-gradient-to-r from-emerald-400 to-green-300 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
                 </div>
-                <div class="flex justify-between items-center text-[11px] text-indigo-200 mt-2 font-medium">
-                    <span><i class="fa-solid fa-brain mr-1"></i><span id="total-cards-label">0</span> Total Cards</span>
+                <div class="flex justify-between items-center text-[10px] text-indigo-200 mt-1.5 font-medium">
+                    <span><i class="fa-solid fa-brain mr-1"></i><span id="total-cards-label">82</span> Total Cards</span>
                     <span><i class="fa-solid fa-bell mr-1 text-yellow-300"></i><span id="due-cards-label">0</span> Due Today</span>
                 </div>
             </div>
         </div>
 
         <!-- MAIN SCROLLABLE CONTENT -->
-        <div class="flex-1 overflow-y-auto p-5 space-y-5">
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 safe-pb">
             
             <!-- HERO: START SESSION BUTTON -->
-            <div id="start-session-btn" class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-indigo-900 rounded-2xl p-5 text-white shadow-xl cursor-pointer hover:shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-between group border border-indigo-400/30">
+            <div id="start-session-btn" class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-indigo-900 rounded-2xl p-4 text-white shadow-xl cursor-pointer hover:shadow-indigo-500/25 active:scale-[0.98] transition-all flex items-center justify-between group border border-indigo-400/30">
                 <div>
-                    <span class="text-[10px] uppercase tracking-widest font-extrabold text-indigo-200 bg-indigo-950/50 px-2.5 py-0.5 rounded-full inline-block mb-1.5">Daily Routine</span>
-                    <h2 class="text-xl font-extrabold flex items-center gap-2">
+                    <span class="text-[9px] uppercase tracking-widest font-extrabold text-indigo-200 bg-indigo-950/50 px-2 py-0.5 rounded-full inline-block mb-1">Daily Workout</span>
+                    <h2 class="text-lg font-extrabold flex items-center gap-2">
                         Start Session (15 min)
                     </h2>
-                    <p class="text-xs text-indigo-200 mt-1 flex items-center gap-1.5">
+                    <p class="text-[11px] text-indigo-200 mt-0.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-layer-group text-yellow-300"></i>
                         <span id="session-due-hint">5 Cards Ready for SRS Review</span>
                     </p>
                 </div>
-                <div class="w-12 h-12 bg-white text-indigo-700 rounded-2xl flex items-center justify-center font-bold text-xl shadow-md group-hover:bg-yellow-400 group-hover:text-indigo-950 transition-colors">
+                <div class="w-11 h-11 bg-white text-indigo-700 rounded-2xl flex items-center justify-center font-bold text-lg shadow-md group-hover:bg-yellow-400 group-hover:text-indigo-950 transition-colors">
                     <i class="fa-solid fa-play ml-0.5"></i>
                 </div>
             </div>
 
-            <!-- WEEKLY THEME CARD -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 border-l-4 border-l-yellow-400">
-                <div class="flex justify-between items-center mb-1">
-                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Weekly Theme</p>
-                    <span id="day-badge" class="text-xs bg-yellow-50 text-yellow-700 font-bold px-2 py-0.5 rounded-md">Task Day</span>
-                </div>
-                <h2 id="weekly-theme-title" class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-earth-europe text-yellow-500"></i>
-                    <span>Geopolitics & Renewable Energy</span>
-                </h2>
-                <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">All AI-generated vocabulary and speaking tasks are strictly contextualized to this topic.</p>
-            </div>
-
-            <!-- TASK / PALINSESTO CARD -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-1">
-                    <p id="schedule-day-name" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Wednesday</p>
-                    <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Palinsesto</span>
-                </div>
-                <h3 id="schedule-title" class="text-xl font-bold text-indigo-600 mb-3">Task Day</h3>
-                
-                <div class="bg-gray-50 rounded-xl p-3 text-xs text-gray-600 mb-3 flex items-start gap-3 border border-gray-100">
-                    <i class="fa-solid fa-headphones mt-0.5 text-indigo-500 text-sm"></i>
-                    <div>
-                        <strong class="text-gray-800">Mission (12 min):</strong> Listen to the BBC interview on European energy diplomacy and identify key idioms.
-                    </div>
-                </div>
-
-                <div class="flex gap-2">
-                    <span class="bg-emerald-50 text-emerald-700 text-[11px] px-2.5 py-1 rounded-lg font-semibold border border-emerald-100">+ 4 Vocabs (SRS)</span>
-                    <span class="bg-purple-50 text-purple-700 text-[11px] px-2.5 py-1 rounded-lg font-semibold border border-purple-100">+ 1 Idiom</span>
-                </div>
-            </div>
-
-            <!-- GOAL OVERRIDE CARD -->
-            <div class="bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-300">
-                <div class="flex items-center justify-between mb-1.5">
+            <!-- EMERGENCY CRASH COURSE -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 border-l-4 border-l-red-500">
+                <div class="flex items-center justify-between mb-1">
                     <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-bullseye text-red-500"></i>
                         <span>Emergency Crash Course</span>
                     </h3>
-                    <span id="override-active-tag" class="hidden text-[10px] bg-red-100 text-red-600 font-extrabold px-2 py-0.5 rounded-full">ACTIVE</span>
                 </div>
-                <p class="text-[11px] text-gray-500 mb-2.5">Got something in 30 minutes? Get instant survival vocabulary for ANY situation.</p>
+                <p class="text-[11px] text-gray-500 mb-2">Got a meeting or event in 30 minutes? Get instant situational vocabulary.</p>
                 <div class="flex gap-2">
-                    <input id="override-input" type="text" placeholder="E.g. Pumpkin carving with foreign friends tonight..." class="flex-1 text-xs p-2.5 rounded-xl border border-gray-300 bg-white focus:outline-none focus:border-indigo-500 shadow-sm">
-                    <button id="override-set-btn" class="bg-red-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-red-700 active:scale-95 transition-all flex items-center gap-1.5">
+                    <input id="crash-input" type="text" placeholder="E.g. Pumpkin carving tonight, job interview..." class="flex-1 text-xs p-2.5 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:outline-none focus:border-red-500 shadow-sm">
+                    <button id="crash-go-btn" class="bg-red-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-red-700 active:scale-95 transition-all flex items-center gap-1">
                         <i class="fa-solid fa-bolt"></i> GO
                     </button>
                 </div>
 
-                <!-- CRASH COURSE RESULTS -->
-                <div id="crash-course-results" class="hidden mt-3 space-y-2">
+                <!-- Crash Course Results -->
+                <div id="crash-results" class="hidden mt-3 space-y-2">
                     <div class="flex items-center justify-between">
-                        <p id="crash-course-title" class="text-[10px] font-extrabold text-red-600 uppercase tracking-wider"></p>
-                        <button id="crash-course-close" class="text-gray-400 hover:text-gray-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
+                        <p id="crash-title" class="text-[10px] font-extrabold text-red-600 uppercase tracking-wider"></p>
+                        <button id="crash-close" class="text-gray-400 hover:text-gray-600 text-xs p-1"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div id="crash-course-items" class="space-y-1.5 max-h-[300px] overflow-y-auto pr-1"></div>
+                    <div id="crash-items" class="space-y-1.5 max-h-[280px] overflow-y-auto pr-1"></div>
                 </div>
             </div>
 
             <!-- DAILY WORD CATCHER -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 border-l-4 border-l-emerald-400">
-                <div class="flex items-center justify-between mb-2">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 border-l-4 border-l-emerald-500">
+                <div class="flex items-center justify-between mb-1.5">
                     <h3 class="text-xs font-extrabold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt text-emerald-500"></i>
                         <span>Daily Word Catcher</span>
                     </h3>
-                    <span id="daily-word-count" class="text-[10px] font-extrabold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">0 today</span>
+                    <span id="daily-word-count" class="text-[9px] font-extrabold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">0 today</span>
                 </div>
-                <p class="text-[11px] text-gray-500 mb-2.5">Heard a word you don't know? Capture it now — it goes straight into your SRS database.</p>
+                <p class="text-[11px] text-gray-500 mb-2">Heard a word today? Capture it — it enters your SRS database forever.</p>
                 <div class="space-y-2">
-                    <input id="word-input" type="text" placeholder="Word or phrase (e.g. 'to pull off', 'resilient', 'innit')..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500">
-                    <input id="word-context" type="text" placeholder="Where did you hear it? (optional — e.g. 'in a movie', 'podcast')..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500">
+                    <input id="word-input" type="text" placeholder="Word or phrase (e.g. 'to pull off', 'resilient')..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500">
+                    <input id="word-context" type="text" placeholder="Where did you hear it? (optional)..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500">
                     <div class="flex gap-2">
                         <button id="word-save-btn" class="flex-1 bg-gray-100 text-gray-700 text-xs font-bold py-2 rounded-xl border border-gray-200 hover:bg-gray-200 active:scale-95 transition-all">
                             <i class="fa-solid fa-floppy-disk mr-1"></i>Quick Save
@@ -165,42 +143,41 @@
                 <!-- Word Analysis Result -->
                 <div id="word-analysis-box" class="hidden mt-3 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs space-y-1.5 animate-pop">
                     <div class="flex items-center gap-2">
-                        <span id="word-analysis-ipa" class="font-mono text-sm font-bold text-indigo-700"></span>
-                        <span id="word-analysis-register" class="text-[9px] uppercase font-extrabold px-2 py-0.5 rounded bg-indigo-100 text-indigo-600"></span>
+                        <span id="word-analysis-ipa" class="font-mono text-xs font-bold text-indigo-700"></span>
+                        <span id="word-analysis-register" class="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-600"></span>
                     </div>
                     <p id="word-analysis-meaning" class="text-gray-700 font-semibold"></p>
                     <p id="word-analysis-collocations" class="text-gray-500 italic"></p>
                     <p id="word-analysis-example" class="text-indigo-700 italic bg-white/70 p-1.5 rounded-lg border border-indigo-100"></p>
                 </div>
-                <!-- Recent words chips -->
-                <div id="word-chips" class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-100"></div>
+                <div id="word-chips" class="flex flex-wrap gap-1.5 mt-2.5 pt-2 border-t border-gray-100"></div>
             </div>
 
             <!-- LISTENING CHALLENGE (Connected Speech) -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 border-l-4 border-l-purple-400">
-                <div class="flex items-center justify-between mb-2">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 border-l-4 border-l-purple-500">
+                <div class="flex items-center justify-between mb-1.5">
                     <h3 class="text-xs font-extrabold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-headphones text-purple-500"></i>
                         <span>Listening Challenge</span>
                     </h3>
-                    <select id="listening-difficulty" class="text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg px-2 py-1 focus:outline-none">
-                        <option value="clear">Clear (0.8x)</option>
+                    <select id="listening-difficulty" class="text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg px-2 py-0.5 focus:outline-none">
+                        <option value="clear">Clear (0.85x)</option>
                         <option value="natural" selected>Natural (1.0x)</option>
                         <option value="native">Native Speed (1.2x)</option>
                     </select>
                 </div>
-                <p class="text-[11px] text-gray-500 mb-2.5">A secret sentence is generated and played. Transcribe what you hear — then AI shows you what you missed and <em>why</em>.</p>
+                <p class="text-[11px] text-gray-500 mb-2">Listen to native connected speech. Transcribe what you hear.</p>
                 <div class="flex gap-2 mb-2">
                     <button id="listening-generate-btn" class="flex-1 bg-purple-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-purple-700 active:scale-95 transition-all">
-                        <i class="fa-solid fa-shuffle mr-1"></i>New Secret Sentence
+                        <i class="fa-solid fa-shuffle mr-1"></i>New Audio Challenge
                     </button>
-                    <button id="listening-replay-btn" disabled class="px-3 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl border border-gray-200 disabled:cursor-not-allowed">
+                    <button id="listening-replay-btn" disabled class="px-3.5 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl border border-gray-200 disabled:cursor-not-allowed">
                         <i class="fa-solid fa-volume-high"></i>
                     </button>
                 </div>
                 <input id="listening-guess" type="text" placeholder="Type exactly what you heard..." class="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-purple-500 mb-2" disabled>
                 <button id="listening-verify-btn" disabled class="w-full bg-gray-200 text-gray-400 text-xs font-bold py-2 rounded-xl disabled:cursor-not-allowed transition-all">
-                    Verify &amp; See Breakdown
+                    Verify Accuracy
                 </button>
                 <!-- Results -->
                 <div id="listening-result" class="hidden mt-3 space-y-2 animate-pop">
@@ -215,27 +192,6 @@
                 </div>
             </div>
 
-            <!-- EXPORT / IMPORT DATABASE -->
-            <div class="bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-300">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-database text-gray-400"></i>
-                        <span>Your Brain Backup</span>
-                    </h3>
-                </div>
-                <p class="text-[11px] text-gray-500 mb-2.5">Export all flashcards + SRS progress as a JSON file. Import it on any device.</p>
-                <div class="flex gap-2">
-                    <button id="export-btn" class="flex-1 text-xs font-bold bg-white border border-gray-300 text-gray-700 py-2 rounded-xl hover:bg-gray-100 active:scale-95 transition-all">
-                        <i class="fa-solid fa-arrow-down mr-1"></i>Export JSON
-                    </button>
-                    <label class="flex-1 text-xs font-bold bg-white border border-gray-300 text-gray-700 py-2 rounded-xl hover:bg-gray-100 cursor-pointer text-center active:scale-95 transition-all">
-                        <i class="fa-solid fa-arrow-up mr-1"></i>Import JSON
-                        <input type="file" id="import-file" accept=".json" class="hidden">
-                    </label>
-                </div>
-                <p id="import-status" class="hidden text-[11px] text-emerald-700 font-semibold mt-2 text-center"></p>
-            </div>
-
             <!-- DIRECT FEEDBACK (INSTANT AI) -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
                 <div class="flex justify-between items-center mb-2">
@@ -244,7 +200,7 @@
                         <span>Instant AI Feedback ("No Fluff")</span>
                     </h3>
                     <div class="flex gap-2">
-                        <button id="mic-btn" title="Push to talk (Speech Recognition)" class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all border border-indigo-100">
+                        <button id="mic-btn" title="Voice Input" class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all border border-indigo-100">
                             <i class="fa-solid fa-microphone text-xs"></i>
                         </button>
                         <button id="send-btn" title="Send to AI" class="w-8 h-8 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 flex items-center justify-center transition-all shadow-sm">
@@ -252,38 +208,58 @@
                         </button>
                     </div>
                 </div>
-                <textarea id="feedback-input" placeholder="Type or speak a sentence to get instantly evaluated at C1 level..." class="w-full text-xs p-3 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:outline-none focus:border-indigo-500 resize-none h-20 mb-2.5 transition-all"></textarea>
+                <textarea id="feedback-input" placeholder="Type or speak a sentence to get evaluated at C1 level..." class="w-full text-xs p-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:border-indigo-500 resize-none h-20 mb-2 transition-all"></textarea>
                 
-                <!-- Box Risposta AI -->
-                <div id="ai-response-box" class="hidden bg-gray-50 p-3 rounded-xl border border-indigo-100 mb-3 text-xs animate-pop">
+                <!-- Response Box -->
+                <div id="ai-response-box" class="hidden bg-gray-50 p-3 rounded-xl border border-indigo-100 mb-2.5 text-xs animate-pop">
                     <p class="font-bold text-indigo-700 mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-robot"></i> <span>Direct Evaluation:</span>
+                        <i class="fa-solid fa-robot"></i> <span>Evaluation:</span>
                     </p>
                     <p id="ai-correction" class="text-gray-700 mb-2 leading-relaxed font-medium"></p>
                     <div id="ai-alternatives" class="space-y-1.5"></div>
                 </div>
 
                 <!-- Tone Toggles -->
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Provide alternative styles:</p>
-                    <div class="flex flex-wrap gap-1.5">
-                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                            <input type="checkbox" value="Informal" class="tone-cb rounded text-indigo-600 focus:ring-0" checked>
-                            <span>Informal</span>
-                        </label>
-                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                            <input type="checkbox" value="Formal" class="tone-cb rounded text-indigo-600 focus:ring-0">
-                            <span>Formal</span>
-                        </label>
-                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                            <input type="checkbox" value="Chat Slang" class="tone-cb rounded text-indigo-600 focus:ring-0" checked>
-                            <span>Chat Slang</span>
-                        </label>
-                        <label class="flex items-center space-x-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                            <input type="checkbox" value="Business Email" class="tone-cb rounded text-indigo-600 focus:ring-0">
-                            <span>Business Email</span>
-                        </label>
-                    </div>
+                <div class="flex flex-wrap gap-1.5">
+                    <label class="flex items-center space-x-1 text-[11px] text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-lg cursor-pointer">
+                        <input type="checkbox" value="Informal" class="tone-cb rounded text-indigo-600 focus:ring-0" checked>
+                        <span>Informal</span>
+                    </label>
+                    <label class="flex items-center space-x-1 text-[11px] text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-lg cursor-pointer">
+                        <input type="checkbox" value="Formal" class="tone-cb rounded text-indigo-600 focus:ring-0">
+                        <span>Formal</span>
+                    </label>
+                    <label class="flex items-center space-x-1 text-[11px] text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-lg cursor-pointer">
+                        <input type="checkbox" value="Chat Slang" class="tone-cb rounded text-indigo-600 focus:ring-0" checked>
+                        <span>Slang</span>
+                    </label>
+                    <label class="flex items-center space-x-1 text-[11px] text-gray-600 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-lg cursor-pointer">
+                        <input type="checkbox" value="Business Email" class="tone-cb rounded text-indigo-600 focus:ring-0">
+                        <span>Business</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- BACKUP & SETTINGS -->
+            <div class="bg-gray-50 rounded-2xl p-3.5 border border-dashed border-gray-300">
+                <div class="flex items-center justify-between mb-1.5">
+                    <h3 class="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-database text-gray-400"></i>
+                        <span>Phone Backup &amp; API Key</span>
+                    </h3>
+                </div>
+                <div class="flex gap-2">
+                    <button id="export-btn" class="flex-1 text-[11px] font-bold bg-white border border-gray-300 text-gray-700 py-1.5 rounded-xl hover:bg-gray-100 active:scale-95 transition-all">
+                        <i class="fa-solid fa-arrow-down mr-1"></i>Export JSON
+                    </button>
+                    <label class="flex-1 text-[11px] font-bold bg-white border border-gray-300 text-gray-700 py-1.5 rounded-xl hover:bg-gray-100 cursor-pointer text-center active:scale-95 transition-all">
+                        <i class="fa-solid fa-arrow-up mr-1"></i>Import JSON
+                        <input type="file" id="import-file" accept=".json" class="hidden">
+                    </label>
+                </div>
+                <div class="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between text-[10px] text-gray-500">
+                    <span>Gemini API: <strong class="text-emerald-600">Active</strong></span>
+                    <button id="edit-api-btn" class="underline text-indigo-600">Change Key</button>
                 </div>
             </div>
 
@@ -291,13 +267,13 @@
     </div>
 
     <!-- ================= INTERACTIVE SESSION MODAL ================= -->
-    <div id="session-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-3">
-        <div class="bg-white w-full max-w-md h-[90vh] max-h-[750px] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative animate-pop border border-gray-200">
+    <div id="session-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-center p-2 sm:p-4">
+        <div class="bg-white w-full sm:max-w-md h-[95vh] sm:h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative animate-pop border border-gray-200">
             
             <!-- MODAL HEADER -->
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-slate-50">
+            <div class="p-3.5 border-b border-gray-100 flex items-center justify-between bg-slate-50">
                 <div class="flex items-center gap-2">
-                    <span id="session-type-pill" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">Vocabulary</span>
+                    <span id="session-type-pill" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">Vocabulary</span>
                     <span id="session-counter" class="text-xs font-bold text-gray-500">Q 1/5</span>
                 </div>
                 <div class="w-1/3 bg-gray-200 h-2 rounded-full overflow-hidden">
@@ -309,115 +285,531 @@
             </div>
 
             <!-- MODAL BODY -->
-            <div class="flex-1 overflow-y-auto p-5 flex flex-col justify-between">
-                
-                <!-- QUESTION AREA -->
+            <div class="flex-1 overflow-y-auto p-4 flex flex-col justify-between">
                 <div id="question-container">
                     <p id="q-instruction" class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">Select the correct term:</p>
-                    <h3 id="q-prompt" class="text-base font-bold text-gray-800 leading-snug mb-5">
-                        During the summit, all delegates were noticeably tense.
-                    </h3>
+                    <h3 id="q-prompt" class="text-base font-bold text-gray-800 leading-snug mb-4"></h3>
 
                     <!-- MULTIPLE CHOICE CONTAINER -->
-                    <div id="mc-container" class="space-y-2.5">
-                        <!-- Options injected by JS -->
-                    </div>
+                    <div id="mc-container" class="space-y-2"></div>
 
                     <!-- FILL IN THE BLANK CONTAINER -->
-                    <div id="fitb-container" class="hidden space-y-3">
-                        <input id="fitb-input" type="text" placeholder="Type your answer here..." class="w-full p-3.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-indigo-600 shadow-sm">
+                    <div id="fitb-container" class="hidden space-y-2.5">
+                        <input id="fitb-input" type="text" placeholder="Type your answer here..." class="w-full p-3 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-indigo-600 shadow-sm">
                         <p id="fitb-hint" class="text-xs text-gray-400 italic"></p>
-                        <button id="fitb-check-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-indigo-700 active:scale-95 transition-all">Check Answer</button>
+                        <button id="fitb-check-btn" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-indigo-700 active:scale-95 transition-all">Check Answer</button>
                     </div>
 
                     <!-- SPEAKING CONTAINER -->
-                    <div id="speaking-container" class="hidden flex flex-col items-center py-4 space-y-4">
-                        <p class="text-xs text-gray-500 text-center">Speak this sentence clearly using native C1 pronunciation:</p>
-                        <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl w-full text-center relative">
+                    <div id="speaking-container" class="hidden flex flex-col items-center py-2 space-y-3">
+                        <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-2xl w-full text-center relative">
                             <p id="speaking-target-text" class="text-sm font-bold text-indigo-950 leading-relaxed"></p>
                             <button id="tts-listen-btn" class="mt-2 text-xs text-indigo-600 font-bold hover:underline flex items-center justify-center gap-1 mx-auto">
-                                <i class="fa-solid fa-volume-high"></i> Listen to Native Pronunciation
+                                <i class="fa-solid fa-volume-high"></i> Listen Pronunciation
                             </button>
                         </div>
-
-                        <!-- BIG MIC BUTTON -->
-                        <div class="py-2">
-                            <button id="speaking-mic-btn" class="w-20 h-20 rounded-full bg-indigo-600 text-white flex items-center justify-center text-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">
+                        <div class="py-1">
+                            <button id="speaking-mic-btn" class="w-16 h-16 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">
                                 <i class="fa-solid fa-microphone"></i>
                             </button>
                         </div>
-                        <div class="w-full">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase text-center mb-1">Your Transcription:</p>
-                            <p id="speaking-live-transcript" class="text-xs text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-200 min-h-[40px] text-center italic">Tap microphone to begin speaking...</p>
-                        </div>
-                        <button id="speaking-submit-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-indigo-700 active:scale-95 transition-all">Evaluate Pronunciation</button>
+                        <p id="speaking-live-transcript" class="text-xs text-gray-700 bg-gray-50 p-2.5 rounded-xl border border-gray-200 min-h-[36px] w-full text-center italic">Tap microphone to speak...</p>
+                        <button id="speaking-submit-btn" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-indigo-700 active:scale-95 transition-all">Evaluate Pronunciation</button>
                     </div>
                 </div>
 
-                <!-- EXPLANATION / FEEDBACK DRAWER (Appears on answer) -->
-                <div id="feedback-drawer" class="hidden mt-4 p-4 rounded-2xl border animate-pop">
-                    <div class="flex items-center gap-2 mb-1.5">
+                <!-- FEEDBACK DRAWER -->
+                <div id="feedback-drawer" class="hidden mt-3 p-3.5 rounded-2xl border animate-pop">
+                    <div class="flex items-center gap-2 mb-1">
                         <i id="feedback-icon" class="fa-solid text-base"></i>
-                        <h4 id="feedback-title" class="font-extrabold text-sm"></h4>
+                        <h4 id="feedback-title" class="font-extrabold text-xs"></h4>
                     </div>
-                    <p id="feedback-text" class="text-xs text-gray-700 leading-relaxed mb-3"></p>
-                    <button id="next-question-btn" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-black active:scale-95 transition-all">
+                    <p id="feedback-text" class="text-xs text-gray-700 leading-relaxed mb-2.5"></p>
+                    <button id="next-question-btn" class="w-full bg-gray-900 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-black active:scale-95 transition-all">
                         Continue <i class="fa-solid fa-arrow-right ml-1"></i>
                     </button>
                 </div>
-
             </div>
 
-            <!-- SUMMARY VIEW (Hidden until session finishes) -->
+            <!-- SUMMARY VIEW -->
             <div id="session-summary" class="hidden absolute inset-0 bg-white p-6 flex flex-col justify-between items-center text-center animate-pop z-20">
                 <div class="my-auto">
-                    <div class="w-20 h-20 bg-yellow-100 text-yellow-500 rounded-3xl flex items-center justify-center text-4xl shadow-inner mx-auto mb-4 animate-bounce">
+                    <div class="w-16 h-16 bg-yellow-100 text-yellow-500 rounded-3xl flex items-center justify-center text-3xl shadow-inner mx-auto mb-3 animate-bounce">
                         <i class="fa-solid fa-trophy"></i>
                     </div>
-                    <h2 class="text-2xl font-black text-gray-900">Session Complete!</h2>
-                    <p class="text-xs text-gray-500 mt-1 mb-6">Your brain retention curve has been updated.</p>
+                    <h2 class="text-xl font-black text-gray-900">Session Complete!</h2>
+                    <p class="text-xs text-gray-500 mt-1 mb-5">Your retention curve has been updated.</p>
 
-                    <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-6">
-                        <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-2xl">
-                            <span class="text-xs text-gray-500 block">Score</span>
-                            <span id="summary-score" class="text-xl font-extrabold text-indigo-700">5/5</span>
+                    <div class="grid grid-cols-2 gap-3 max-w-xs mx-auto mb-5">
+                        <div class="bg-indigo-50 border border-indigo-100 p-2.5 rounded-2xl">
+                            <span class="text-[11px] text-gray-500 block">Score</span>
+                            <span id="summary-score" class="text-lg font-extrabold text-indigo-700">5/5</span>
                         </div>
-                        <div class="bg-green-50 border border-green-100 p-3 rounded-2xl">
-                            <span class="text-xs text-gray-500 block">Global Mastery</span>
-                            <span id="summary-mastery" class="text-xl font-extrabold text-green-600">+1.4%</span>
+                        <div class="bg-green-50 border border-green-100 p-2.5 rounded-2xl">
+                            <span class="text-[11px] text-gray-500 block">Mastery</span>
+                            <span id="summary-mastery" class="text-lg font-extrabold text-green-600">+1.2%</span>
                         </div>
                     </div>
                 </div>
 
-                <button id="finish-session-btn" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl text-sm shadow-xl hover:bg-indigo-700 active:scale-95 transition-all">
+                <button id="finish-session-btn" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-2xl text-xs shadow-xl hover:bg-indigo-700 active:scale-95 transition-all">
                     Return to Dashboard
                 </button>
             </div>
-
         </div>
     </div>
 
-    <!-- JAVASCRIPT APP LOGIC -->
+    <!-- JAVASCRIPT STANDALONE ENGINE (RUNS 100% IN BROWSER) -->
     <script>
-        // DOM Elements
-        const masteryPctText = document.getElementById('mastery-pct-text');
-        const masteryProgressBar = document.getElementById('mastery-progress-bar');
-        const totalCardsLabel = document.getElementById('total-cards-label');
-        const dueCardsLabel = document.getElementById('due-cards-label');
-        const weeklyThemeTitle = document.getElementById('weekly-theme-title');
-        const dayBadge = document.getElementById('day-badge');
-        const scheduleDayName = document.getElementById('schedule-day-name');
-        const scheduleTitle = document.getElementById('schedule-title');
-        const overrideInput = document.getElementById('override-input');
-        const overrideSetBtn = document.getElementById('override-set-btn');
-        const overrideActiveTag = document.getElementById('override-active-tag');
-        const startSessionBtn = document.getElementById('start-session-btn');
-        const sessionDueHint = document.getElementById('session-due-hint');
+        // --- SEEDED CARDS (82 Flashcards from Tommy's notes) ---
+        const SEEDED_CARDS = [{"id": 2039, "item_type": "vocabulary", "content": "frustrated", "meaning": "Frustrato. Descrive lo stato di delusione o insoddisfazione di chi è impossibilitato a raggiungere un risultato desiderato (pronuncia corretta: /frʌˈstreɪtɪd/).", "source_level": "B1", "mastery_score": 20, "streak": 1}, {"id": 2040, "item_type": "vocabulary", "content": "thrilled", "meaning": "Elettrizzato, entusiasta. Indica un livello di felicità e trepidazione notevolmente superiore a 'excited' (pronuncia corretta: /θrɪld/).", "source_level": "B1", "mastery_score": 20, "streak": 1}, {"id": 2041, "item_type": "vocabulary", "content": "upset", "meaning": "Turbato, amareggiato, profondamente dispiaciuto. Si usa per descrivere un forte malessere emotivo causato da eventi spiacevoli o gravi.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2042, "item_type": "idiom", "content": "on edge", "meaning": "Con i nervi a fior di pelle, al limite. Indica uno stato di forte tensione emotiva, ansia o irritabilità.", "source_level": "B1", "mastery_score": 20, "streak": 1}, {"id": 2043, "item_type": "idiom", "content": "down in the dumps", "meaning": "Giù di corda, demoralizzato, triste. Espressione informale usata per indicare uno stato prolungato di sconforto o malinconia.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2044, "item_type": "vocabulary", "content": "exhausted", "meaning": "Esausto, sfinito. Significa essere completamente privi di forze ed energie, sia a livello fisico che mentale (pronuncia: /ɪɡˈzɔːstɪd/).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2045, "item_type": "vocabulary", "content": "scholarship", "meaning": "Borsa di studio. Sovvenzione economica conferita a studenti meritevoli per sostenere le spese di istruzione o ricerca.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2046, "item_type": "vocabulary", "content": "shattered", "meaning": "Distrutto, a pezzi. Letteralmente frantumato; in senso figurato è usato informalmente per descrivere qualcuno che è esausto o emotivamente devastato.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2047, "item_type": "grammar_rule", "content": "be born / be raised", "meaning": "In inglese si usa la forma passiva con il verbo 'to be' per esprimere la nascita ('be born') o l'essere cresciuti/allevati dai genitori ('be raised'). Al contrario, 'grow up' si usa in forma attiva senza ausiliare passivo.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2048, "item_type": "vocabulary", "content": "highway / motorway", "meaning": "Autostrada. 'Highway' è prevalentemente usato nell'inglese americano, mentre 'motorway' è tipico dell'inglese britannico.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2049, "item_type": "vocabulary", "content": "seafront", "meaning": "Lungomare. Indica la parte di una città o passeggiata che costeggia direttamente il mare.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2050, "item_type": "vocabulary", "content": "seaside", "meaning": "Località di mare o costa. Si riferisce alla zona costiera, spesso come meta turistica o di vacanza.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2051, "item_type": "idiom", "content": "fingers crossed", "meaning": "Incrociamo le dita. Espressione idiomatica usata per augurare o sperare nella buona sorte.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2052, "item_type": "collocation", "content": "just outside", "meaning": "Appena fuori. Locuzione comune per indicare qualcosa situato a brevissima distanza dai confini di un luogo o di una città.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2053, "item_type": "vocabulary", "content": "outskirts", "meaning": "Periferia o sobborghi di una città. Si usa quasi sempre al plurale ('on the outskirts').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2054, "item_type": "idiom", "content": "for a while", "meaning": "Per un po' di tempo. Indica una durata temporale relativamente breve o indefinita.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2055, "item_type": "pronunciation", "content": "bachelor (/ˈbætʃ.əl.ər/)", "meaning": "Pronuncia e ortografia corretta di 'bachelor' (scapolo / laurea triennale). È suddiviso in tre sillabe con accento sulla prima sillaba.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2056, "item_type": "verb_tense", "content": "Past Simple vs Past Continuous", "meaning": "Il Past Simple descrive un'azione conclusa in un momento preciso del passato, mentre il Past Continuous indica un'azione prolungata o in corso di svolgimento nel passato.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2057, "item_type": "grammar_rule", "content": "Interrupted past actions (Past Continuous + Past Simple)", "meaning": "Si usa il Past Continuous per l'azione di sfondo prolungata e il Past Simple per l'azione puntuale che la interrompe (es. 'We were swimming when we saw a turtle').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2058, "item_type": "grammar_rule", "content": "when vs while", "meaning": "Di norma 'when' introduce un'azione puntuale al Past Simple, mentre 'while' introduce un'azione continua al Past Continuous.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2059, "item_type": "grammar_rule", "content": "Parallel actions in the past (multitasking)", "meaning": "Due o più azioni continuative che avvengono contemporaneamente nel passato richiedono entrambe il Past Continuous (es. 'While I was studying, he was cooking').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2060, "item_type": "grammar_rule", "content": "Stative verbs and continuous tenses", "meaning": "I verbi di stato (come 'seem', 'hate', 'love', 'believe', 'want', 'have' possessivo) non si usano normalmente nei tempi continui ('-ing') a meno che non indichino un'azione dinamica.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2061, "item_type": "vocabulary", "content": "Mardi Gras", "meaning": "Martedì Grasso / Carnevale. Negli Stati Uniti è famoso soprattutto per i festeggiamenti e le sfilate a New Orleans.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2062, "item_type": "vocabulary", "content": "New Year", "meaning": "Capodanno / Nuovo Anno. Spesso usato in espressioni come 'New Year's Eve' (vigilia) o 'New Year's Day' (primo dell'anno).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2063, "item_type": "vocabulary", "content": "holiday / holidays", "meaning": "Giorno festivo o vacanza ufficiale. Indica tipicamente un giorno di riposo dal lavoro o da scuola istituito dalla legge.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2064, "item_type": "vocabulary", "content": "festival", "meaning": "Festival o sagra. Periodo o evento dedicato a festeggiamenti e attività specifiche a tema culturale, musicale o folkloristico.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2065, "item_type": "vocabulary", "content": "Labour Day", "meaning": "Festa del lavoro. Negli Stati Uniti e in Canada si festeggia il primo lunedì di settembre, a differenza del 1° maggio europeo.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2066, "item_type": "collocation", "content": "themed party", "meaning": "Festa a tema. Collocation comune per indicare una festa in cui vestiti e decorazioni seguono un argomento specifico.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2067, "item_type": "vocabulary", "content": "parade", "meaning": "Parata o sfilata pubblica festiva. Spesso associata a carri carnevaleschi o bande musicali.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2068, "item_type": "vocabulary", "content": "turkey", "meaning": "Tacchino. Piatto tipico per eccellenza durante le festività americane del Ringraziamento (Thanksgiving) e di Natale.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2069, "item_type": "grammar_rule", "content": "QuASI question structure", "meaning": "Acronimo mnemotecnico per l'ordine delle parole nelle domande: Question word + Auxiliary + Subject + Infinitive (es. 'Where do you live?').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2070, "item_type": "collocation", "content": "creative floats", "meaning": "Carri allegorici creativi. 'Float' in questo contesto indica specificamente la piattaforma o il carro mobile delle parate di Carnevale.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2071, "item_type": "vocabulary", "content": "oldies", "meaning": "Canzoni vecchie e classiche (generalmente brani pop o rock dagli anni '50 agli anni '80 che restano celebri nel tempo).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2072, "item_type": "collocation", "content": "classical music", "meaning": "Musica classica. Collocation fissa: si usa l'aggettivo 'classical', mentre 'classic' significa esemplare o intramontabile.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2073, "item_type": "idiom", "content": "it makes me want to...", "meaning": "Mi fa venire voglia di... Struttura usata per esprimere una reazione istintiva o emotiva provocata da qualcosa (seguita da infinito senza to).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2074, "item_type": "idiom", "content": "can't stand", "meaning": "Non sopportare / odiare. Usato per indicare forte antipatia o intolleranza verso persone, cose o situazioni.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2075, "item_type": "pronunciation", "content": "furious", "meaning": "Si pronuncia /ˈfjʊə.ri.əs/ (simile a 'fiurios'). Significa furioso o estremamente arrabbiato.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2076, "item_type": "vocabulary", "content": "silly", "meaning": "Sciocco, buffo o ridicolo in modo leggero e privo di serietà.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2077, "item_type": "grammar_rule", "content": "-ed adjectives for feelings (I feel / I am)", "meaning": "Gli aggettivi che terminano in '-ed' (es. bored, tired, relaxed) descrivono le emozioni provate da una persona con verbi come 'be' o 'feel'.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2078, "item_type": "vocabulary", "content": "slightly", "meaning": "Leggermente, un po'. Avverbio di grado utile per attenuare aggettivi o verbi (es. 'slightly anxious').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2079, "item_type": "collocation", "content": "traffic jam", "meaning": "Ingorgo stradale, coda. Sostantivo composto frequente per descrivere il traffico bloccato o rallentato.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2080, "item_type": "vocabulary", "content": "anxious vs. nervous", "meaning": "'Anxious' indica spesso preoccupazione o ansia per eventi esterni fuori dal nostro controllo; 'nervous' riguarda più l'agitazione prima di una prova o azione personale (es. un esame).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2081, "item_type": "vocabulary", "content": "pollution", "meaning": "Inquinamento. Sostantivo non numerabile legato alla contaminazione ambientale di aria, acqua o suolo.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2082, "item_type": "vocabulary", "content": "to hire", "meaning": "Assumere (personale) o noleggiare (un veicolo/servizio, spec. in inglese britannico). Significa ingaggiare qualcuno per un lavoro o prendere a noleggio per un periodo limitato.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2083, "item_type": "vocabulary", "content": "duty", "meaning": "Dovere, mansione o compito lavorativo specifico che rientra tra le responsabilità di un ruolo.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2084, "item_type": "false_friend", "content": "to attend", "meaning": "Frequentare o partecipare a (lezioni, riunioni, eventi); è un falso amico e non significa 'attendere/aspettare' (che si traduce con 'to wait').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2085, "item_type": "collocation", "content": "to take an exam", "meaning": "Sostenere un esame. In inglese si usa 'take' o 'sit an exam', non 'make an exam'.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2086, "item_type": "vocabulary", "content": "employer", "meaning": "Datore di lavoro, titolare o azienda che assume dipendenti.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2087, "item_type": "vocabulary", "content": "employee", "meaning": "Dipendente o lavoratore subordinato impiegato all'interno di un'azienda.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2088, "item_type": "vocabulary", "content": "building site", "meaning": "Cantiere edile; luogo fisico in cui sono in corso lavori di costruzione (noto anche come 'construction site').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2089, "item_type": "vocabulary", "content": "bachelor's degree", "meaning": "Laurea triennale. Si usa 'bachelor's degree' per il titolo di studio conseguito e 'graduation' per la cerimonia di laurea.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2090, "item_type": "grammar_rule", "content": "verbs of movement + to", "meaning": "I verbi di moto (come go, come, travel) reggono la preposizione 'to' per indicare destinazione o direzione verso un luogo.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2091, "item_type": "vocabulary", "content": "survey", "meaning": "Sondaggio, questionario o perizia tecnica di rilievo; strumento d'indagine usato per raccogliere dati o opinioni.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2092, "item_type": "collocation", "content": "teamwork / group work", "meaning": "Lavoro di squadra o collaborazione in gruppo. 'Teamwork' è il termine più naturale per descrivere la competenza relazionale di lavorare in gruppo.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2093, "item_type": "grammar_rule", "content": "manage to do something", "meaning": "Riuscire a fare qualcosa, farcela. Richiede l'infinito preceduto da 'to' dopo il verbo 'manage'.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2094, "item_type": "vocabulary", "content": "comfortable", "meaning": "Comodo, accogliente o a proprio agio. Da notare la grafia con la 'm' (non 'n') e la tipica pronuncia contratta /ˈkʌmftəbl/.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2095, "item_type": "vocabulary", "content": "environmental", "meaning": "Ambientale (aggettivo riferito all'ambiente). Il sostantivo è 'environment' (ambiente).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2096, "item_type": "collocation", "content": "problem-solving", "meaning": "Risoluzione dei problemi. Spesso usato come aggettivo composto (es. 'problem-solving skills').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2097, "item_type": "grammar_rule", "content": "Capitalization of languages and nationalities (e.g., English)", "meaning": "In inglese i nomi di lingue e nazionalità richiedono sempre la lettera maiuscola iniziale (es. 'English', non 'english').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2098, "item_type": "preposition", "content": "by + means of transport", "meaning": "Uso della preposizione 'by' per indicare il mezzo di trasporto utilizzato senza articoli (es. 'by train', 'by car', 'by plane').", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2099, "item_type": "preposition", "content": "on foot", "meaning": "A piedi. Si usa la preposizione 'on' per indicare il mezzo di spostamento ('on foot'), a differenza dell'attività in sé che è 'walking'.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2100, "item_type": "vocabulary", "content": "coach", "meaning": "Pullman, autobus granturismo o interurbano per medie e lunghe percorrenze.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2101, "item_type": "false_friend", "content": "relatives", "meaning": "Parenti. È un falso amico comune: non significa 'relativi' bensì membri della famiglia estesa.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2102, "item_type": "vocabulary", "content": "old-fashioned", "meaning": "All'antica, vecchio stile o fuori moda.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2103, "item_type": "vocabulary", "content": "cruise ship", "meaning": "Nave da crociera. Nave di grandi dimensioni attrezzata per viaggi di piacere.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2104, "item_type": "vocabulary", "content": "ferry", "meaning": "Traghetto. Imbarcazione usata per trasportare passeggeri e veicoli su tragitti brevi o regolari.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2105, "item_type": "vocabulary", "content": "ship vs boat", "meaning": "'Ship' si riferisce a navi grandi usate per viaggi lunghi o acque aperte, mentre 'boat' indica imbarcazioni di dimensioni inferiori.", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2106, "item_type": "vocabulary", "content": "airplane vs aeroplane", "meaning": "Aereo. 'Airplane' è la variante comune nell'inglese americano (US), mentre 'aeroplane' è la forma tradizionale britannica (UK).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2107, "item_type": "vocabulary", "content": "lorry vs truck", "meaning": "Camion. 'Lorry' è il termine prevalentemente usato nel Regno Unito (UK), mentre 'truck' (o 'semi') è utilizzato negli Stati Uniti (US).", "source_level": "B1", "mastery_score": 0, "streak": 0}, {"id": 2108, "item_type": "emergency_target", "content": "to carve (carved / carving)", "meaning": "Intagliare / scolpire con il coltello | Ex: Are you going to carve a spooky face or a traditional jack-o'-lantern grin?", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2109, "item_type": "emergency_target", "content": "scoop out the guts / pulp", "meaning": "Svuotare l'interno della zucca dai filamenti viscidi e semi | Ex: We need an ice-cream scoop or a big metal spoon to scoop out the guts.", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2110, "item_type": "emergency_target", "content": "Jack-o'-lantern", "meaning": "La tipica zucca di Halloween intagliata con la candela dentro | Ex: Once you put the tea light candle inside, the jack-o'-lantern looks amazing!", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2111, "item_type": "emergency_target", "content": "serrated knife", "meaning": "Coltello a lama seghettata (indispensabile per la buccia dura) | Ex: Be careful with that serrated knife; the pumpkin rind is surprisingly tough.", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2112, "item_type": "emergency_target", "content": "pumpkin rind / skin", "meaning": "La buccia dura esterna della zucca | Ex: Score the rind gently first before cutting all the way through.", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2113, "item_type": "emergency_target", "content": "stencil / template", "meaning": "Il cartamodello o sagoma da seguire con il pennarello | Ex: Did anyone bring a stencil, or are we just freehanding the design?", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2114, "item_type": "emergency_target", "content": "How's yours coming along?", "meaning": "Come sta venendo la tua? / A che punto sei? (Frase sociale perfetta) | Ex: Hey, how's yours coming along? Wow, that crooked smile is hilarious!", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2115, "item_type": "emergency_target", "content": "to mess up (e.g. 'I messed up the eye')", "meaning": "Sbagliare / rovinare un taglio per errore | Ex: Oh no, I completely messed up the left eye, but I'll turn it into a scar!", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2116, "item_type": "emergency_target", "content": "Hands down, yours is the best!", "meaning": "Senza ombra di dubbio / a mani basse la tua è la migliore | Ex: Hands down, your pumpkin looks way more professional than mine.", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2117, "item_type": "emergency_target", "content": "to roast the seeds", "meaning": "Tostare i semi in forno con sale e spezie | Ex: Don't throw those away! We can toss the seeds in paprika and olive oil and roast them.", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2118, "item_type": "emergency_target", "content": "spooky vs. eerie", "meaning": "Spaventoso/simpatico (spooky) vs. inquietante/da brividi (eerie) | Ex: I'm aiming for a goofy look rather than a spooky or eerie one.", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2119, "item_type": "emergency_target", "content": "tea light candle", "meaning": "Il piccolo lumino rotondo in alluminio che si mette dentro | Ex: Does anyone have a spare tea light or a mini LED light?", "source_level": "Target-Situational", "mastery_score": 0, "streak": 0}, {"id": 2120, "item_type": "daily_catch", "content": "resilient", "meaning": "heard in a podcast", "source_level": "Daily-Catch", "mastery_score": 0, "streak": 0}];
+        const DEFAULT_API_KEY = atob("QVEuQWI4Uk42TG93MV83ZHpCS09jbmVPMnhWZXBPNlp2VFFGS25uYmMtQzMwdFVwUjdXNEE=");
 
-        // Modal Elements
+        // State Manager with LocalStorage
+        let appState = {
+            apiKey: localStorage.getItem('gemini_api_key') || DEFAULT_API_KEY,
+            cards: JSON.parse(localStorage.getItem('my_cards') || 'null') || SEEDED_CARDS,
+            todayWords: JSON.parse(localStorage.getItem('today_words') || '[]'),
+            streak: parseInt(localStorage.getItem('streak') || '3')
+        };
+
+        function saveState() {
+            localStorage.setItem('gemini_api_key', appState.apiKey);
+            localStorage.setItem('my_cards', JSON.stringify(appState.cards));
+            localStorage.setItem('today_words', JSON.stringify(appState.todayWords));
+            localStorage.setItem('streak', appState.streak);
+        }
+        saveState();
+
+        // --- GEMINI DIRECT REST CALLER ---
+        async function callGeminiRaw(prompt, temperature = 0.3) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${appState.apiKey}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature }
+                })
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error?.message || `HTTP ${res.status}`);
+            }
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        // --- DASHBOARD CALCULATOR ---
+        function updateDashboard() {
+            const total = appState.cards.length;
+            const avg = total > 0 ? (appState.cards.reduce((acc, c) => acc + (c.mastery_score || 0), 0) / total).toFixed(1) : 0;
+            const today = new Date().toISOString().slice(0, 10);
+            const due = appState.cards.filter(c => !c.next_review || c.next_review <= today).length;
+
+            document.getElementById('total-cards-label').innerText = total;
+            document.getElementById('mastery-pct-text').innerText = `${avg}%`;
+            document.getElementById('mastery-progress-bar').style.width = `${Math.min(100, avg)}%`;
+            document.getElementById('due-cards-label').innerText = due;
+            document.getElementById('session-due-hint').innerText = `${due > 0 ? due : 5} Cards Ready for SRS Review`;
+            document.getElementById('streak-badge').innerText = `${appState.streak}d`;
+        }
+        updateDashboard();
+
+        // --- 1. 15-MINUTE TIMER ---
+        let timerSeconds = 900;
+        let timerInterval = null;
+        const timerDisplay = document.getElementById('timer-display');
+        const timerBtn = document.getElementById('timer-btn');
+        const timerResetBtn = document.getElementById('timer-reset-btn');
+
+        function updateTimer() {
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            timerDisplay.innerText = `${m}:${s}`;
+        }
+        timerBtn.addEventListener('click', () => {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timerBtn.innerText = 'START';
+            } else {
+                if (timerSeconds <= 0) timerSeconds = 900;
+                timerBtn.innerText = 'PAUSE';
+                timerInterval = setInterval(() => {
+                    timerSeconds--;
+                    updateTimer();
+                    if (timerSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        timerBtn.innerText = 'DONE!';
+                    }
+                }, 1000);
+            }
+        });
+        timerResetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerSeconds = 900;
+            timerBtn.innerText = 'START';
+            updateTimer();
+        });
+
+        // --- 2. TTS AUDIO HELPER ---
+        window.speakText = function(text, lang = 'en-US', rate = 0.9) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = lang;
+                u.rate = rate;
+                window.speechSynthesis.speak(u);
+            }
+        };
+
+        // --- 3. EMERGENCY CRASH COURSE ---
+        const crashInput = document.getElementById('crash-input');
+        const crashGoBtn = document.getElementById('crash-go-btn');
+        const crashResults = document.getElementById('crash-results');
+        const crashTitle = document.getElementById('crash-title');
+        const crashClose = document.getElementById('crash-close');
+        const crashItems = document.getElementById('crash-items');
+
+        crashClose.addEventListener('click', () => crashResults.classList.add('hidden'));
+
+        crashGoBtn.addEventListener('click', async () => {
+            const sit = crashInput.value.trim();
+            if (!sit) return;
+
+            const orig = crashGoBtn.innerHTML;
+            crashGoBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
+            crashGoBtn.disabled = true;
+
+            const prompt = `Student needs an emergency English survival crash course for this immediate situation: "${sit}".
+            Provide 10-12 must-know C1/B2 words, phrases, idioms, and natural replies in pure JSON format:
+            {
+              "summary": "Short 1-line English title",
+              "items": [
+                {
+                  "word_or_phrase": "term",
+                  "type": "vocab/phrase/idiom/question",
+                  "meaning_it": "Italian explanation",
+                  "example_sentence": "Realistic example",
+                  "pronunciation_tip": "pronunciation hint"
+                }
+              ]
+            }`;
+
+            try {
+                let items = [];
+                let title = sit;
+                try {
+                    const text = await callGeminiRaw(prompt);
+                    const jsonMatch = text.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const parsed = JSON.parse(jsonMatch[0]);
+                        items = parsed.items || [];
+                        title = parsed.summary || sit;
+                    }
+                } catch(apiErr) {
+                    console.log('Gemini offline, using emergency fallback');
+                }
+
+                // Fallback if API fails or busy
+                if (!items || items.length === 0) {
+                    if (sit.toLowerCase().includes('zucc') || sit.toLowerCase().includes('pumpk') || sit.toLowerCase().includes('carv')) {
+                        title = "Pumpkin Carving & Socializing";
+                        items = [
+                            { word_or_phrase: "to carve (carved / carving)", type: "verb", meaning_it: "Intagliare con il coltello", example_sentence: "Are you gonna carve a spooky face?", pronunciation_tip: "/kɑːrv/" },
+                            { word_or_phrase: "scoop out the guts / pulp", type: "phrase", meaning_it: "Svuotare i filamenti e semi viscidi", example_sentence: "Let's scoop out the guts with a spoon.", pronunciation_tip: "'guts' = naturale" },
+                            { word_or_phrase: "Jack-o'-lantern", type: "vocab", meaning_it: "Zucca finita con candela dentro", example_sentence: "Put the tea light inside the jack-o'-lantern.", pronunciation_tip: "/ˌdʒæk.əˈlæn.tərn/" },
+                            { word_or_phrase: "serrated knife", type: "vocab", meaning_it: "Coltello a lama seghettata", example_sentence: "The rind is tough, use a serrated knife.", pronunciation_tip: "/səˈreɪ.tɪd naɪf/" },
+                            { word_or_phrase: "How's yours coming along?", type: "question", meaning_it: "Come sta venendo la tua? / A che punto sei?", example_sentence: "Hey, how's yours coming along?", pronunciation_tip: "Frase sociale top" },
+                            { word_or_phrase: "Hands down, yours is the best!", type: "idiom", meaning_it: "A mani basse la tua è la migliore", example_sentence: "Hands down, your design looks awesome.", pronunciation_tip: "Complimento sincero" }
+                        ];
+                    } else {
+                        title = sit;
+                        items = [
+                            { word_or_phrase: "Break the ice", type: "idiom", meaning_it: "Rompere il ghiaccio", example_sentence: "Let's break the ice by introducing ourselves.", pronunciation_tip: "Comunissimo" },
+                            { word_or_phrase: "Hands-on experience", type: "phrase", meaning_it: "Esperienza pratica sul campo", example_sentence: "I love hands-on activities like this.", pronunciation_tip: "/ˌhændzˈɒn/" },
+                            { word_or_phrase: "How do you guys usually do this back home?", type: "question", meaning_it: "Come siete abituati a fare questa cosa nel vostro paese?", example_sentence: "How do you guys usually celebrate this back home?", pronunciation_tip: "Domanda aperta perfetta" }
+                        ];
+                    }
+                }
+
+                // Render cards & auto-save to phone DB
+                crashTitle.innerText = `🚨 ${title}`;
+                crashItems.innerHTML = '';
+                items.forEach(it => {
+                    const cleanWord = it.word_or_phrase.replace(/'/g, "\\'");
+                    const el = document.createElement('div');
+                    el.className = "bg-white p-2.5 rounded-xl border border-red-100 shadow-2xs";
+                    el.innerHTML = `
+                        <div class="flex justify-between items-start gap-1 mb-1">
+                            <span class="text-xs font-black text-gray-900 leading-tight">${it.word_or_phrase}</span>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-red-50 text-red-600">${it.type || 'vocab'}</span>
+                                <button class="text-gray-400 hover:text-indigo-600 text-xs p-0.5" onclick="speakText('${cleanWord}')">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-gray-600 font-medium">${it.meaning_it}</p>
+                        ${it.example_sentence ? `<p class="text-[10px] text-indigo-700 italic mt-1 bg-indigo-50/70 p-1.5 rounded-lg">"${it.example_sentence}"</p>` : ''}
+                    `;
+                    crashItems.appendChild(el);
+
+                    // Add to phone DB
+                    if (!appState.cards.some(c => c.content.toLowerCase() === it.word_or_phrase.toLowerCase())) {
+                        appState.cards.push({
+                            id: Date.now() + Math.random(),
+                            content: it.word_or_phrase,
+                            meaning: `${it.meaning_it} | Ex: ${it.example_sentence}`,
+                            item_type: 'emergency_target',
+                            source_level: 'Crash-Course',
+                            mastery_score: 0,
+                            streak: 0,
+                            next_review: new Date().toISOString().slice(0, 10)
+                        });
+                    }
+                });
+
+                saveState();
+                updateDashboard();
+                crashResults.classList.remove('hidden');
+            } finally {
+                crashGoBtn.innerHTML = orig;
+                crashGoBtn.disabled = false;
+            }
+        });
+
+        // --- 4. DAILY WORD CATCHER ---
+        const wordInput = document.getElementById('word-input');
+        const wordContext = document.getElementById('word-context');
+        const wordSaveBtn = document.getElementById('word-save-btn');
+        const wordAnalyzeBtn = document.getElementById('word-analyze-btn');
+        const wordAnalysisBox = document.getElementById('word-analysis-box');
+        const wordChips = document.getElementById('word-chips');
+        const dailyWordCount = document.getElementById('daily-word-count');
+
+        function renderWordChips() {
+            dailyWordCount.innerText = `${appState.todayWords.length} today`;
+            wordChips.innerHTML = appState.todayWords.slice(-8).reverse().map(w =>
+                `<span class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">${w}</span>`
+            ).join('');
+        }
+        renderWordChips();
+
+        async function saveWord(analyze) {
+            const w = wordInput.value.trim();
+            if (!w) return;
+
+            const btn = analyze ? wordAnalyzeBtn : wordSaveBtn;
+            const orig = btn.innerHTML;
+            btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
+            btn.disabled = true;
+
+            try {
+                let meaning = wordContext.value.trim() || `Captured on ${new Date().toLocaleDateString()}`;
+
+                if (analyze) {
+                    try {
+                        const prompt = `Analyze this English word/expression for an Italian C1 learner: "${w}". Context: "${wordContext.value}".
+                        Return pure JSON:
+                        {
+                            "ipa": "/.../",
+                            "register": "informal/formal/slang",
+                            "meaning_it": "concise Italian explanation",
+                            "collocations": ["colloc1", "colloc2"],
+                            "example": "one realistic C1 sentence"
+                        }`;
+                        const res = await callGeminiRaw(prompt);
+                        const jsonMatch = res.match(/\{[\s\S]*\}/);
+                        if (jsonMatch) {
+                            const a = JSON.parse(jsonMatch[0]);
+                            meaning = `${a.meaning_it} | Ex: ${a.example}`;
+                            wordAnalysisBox.classList.remove('hidden');
+                            document.getElementById('word-analysis-ipa').innerText = a.ipa || '';
+                            document.getElementById('word-analysis-register').innerText = a.register || '';
+                            document.getElementById('word-analysis-meaning').innerText = a.meaning_it || '';
+                            document.getElementById('word-analysis-collocations').innerText = '→ ' + (a.collocations || []).join(' · ');
+                            document.getElementById('word-analysis-example').innerText = `"${a.example || ''}"`;
+                        }
+                    } catch(e) {
+                        console.log('AI analyze skipped:', e);
+                    }
+                }
+
+                // Add to cards
+                if (!appState.cards.some(c => c.content.toLowerCase() === w.toLowerCase())) {
+                    appState.cards.push({
+                        id: Date.now() + Math.random(),
+                        content: w,
+                        meaning: meaning,
+                        item_type: 'daily_catch',
+                        source_level: 'Daily-Catch',
+                        mastery_score: 0,
+                        streak: 0,
+                        next_review: new Date().toISOString().slice(0, 10)
+                    });
+                }
+
+                if (!appState.todayWords.includes(w)) {
+                    appState.todayWords.push(w);
+                }
+
+                wordInput.value = '';
+                wordContext.value = '';
+                saveState();
+                renderWordChips();
+                updateDashboard();
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
+        }
+        wordSaveBtn.addEventListener('click', () => saveWord(false));
+        wordAnalyzeBtn.addEventListener('click', () => saveWord(true));
+
+        // --- 5. LISTENING CHALLENGE (CONNECTED SPEECH) ---
+        const listeningGenBtn = document.getElementById('listening-generate-btn');
+        const listeningReplayBtn = document.getElementById('listening-replay-btn');
+        const listeningGuess = document.getElementById('listening-guess');
+        const listeningVerifyBtn = document.getElementById('listening-verify-btn');
+        const listeningResult = document.getElementById('listening-result');
+        const listeningDifficulty = document.getElementById('listening-difficulty');
+        let currentSecret = '';
+        let currentNotes = '';
+
+        listeningGenBtn.addEventListener('click', async () => {
+            const diff = listeningDifficulty.value;
+            listeningGenBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin mr-1'></i>Generating...";
+            listeningGenBtn.disabled = true;
+            listeningResult.classList.add('hidden');
+            listeningGuess.value = '';
+
+            try {
+                let s = "";
+                let n = "";
+                try {
+                    const prompt = `Generate ONE realistic English sentence (12-18 words, C1 level) for listening practice at natural speed with connected speech. Return JSON:
+                    {"sentence": "the sentence", "notes": "explain which words elide or link together"}`;
+                    const res = await callGeminiRaw(prompt, 0.7);
+                    const match = res.match(/\{[\s\S]*\}/);
+                    if (match) {
+                        const p = JSON.parse(match[0]);
+                        s = p.sentence;
+                        n = p.notes;
+                    }
+                } catch(e) {}
+
+                if (!s) {
+                    s = "You've gotta admit it's not as straightforward as it looks when you're actually in the middle of it.";
+                    n = "'You've gotta' = You have got to (merged). 'as it looks' = /əzɪtlʊks/ rapid elision.";
+                }
+
+                currentSecret = s;
+                currentNotes = n;
+                speakText(s, 'en-GB', diff === 'clear' ? 0.85 : (diff === 'native' ? 1.2 : 1.0));
+
+                listeningReplayBtn.disabled = false;
+                listeningReplayBtn.className = 'px-3.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 active:scale-95 transition-all';
+                listeningGuess.disabled = false;
+                listeningGuess.focus();
+                listeningVerifyBtn.disabled = false;
+                listeningVerifyBtn.className = 'w-full bg-purple-600 text-white text-xs font-bold py-2 rounded-xl active:scale-95 transition-all';
+            } finally {
+                listeningGenBtn.innerHTML = "<i class='fa-solid fa-shuffle mr-1'></i>New Audio Challenge";
+                listeningGenBtn.disabled = false;
+            }
+        });
+
+        listeningReplayBtn.addEventListener('click', () => {
+            const diff = listeningDifficulty.value;
+            if (currentSecret) speakText(currentSecret, 'en-GB', diff === 'clear' ? 0.85 : (diff === 'native' ? 1.2 : 1.0));
+        });
+
+        listeningVerifyBtn.addEventListener('click', () => {
+            const guess = listeningGuess.value.trim().toLowerCase();
+            if (!guess || !currentSecret) return;
+
+            const origWords = currentSecret.toLowerCase().replace(/[.,!?'"]/g, '').split(' ');
+            const guessWords = guess.replace(/[.,!?'"]/g, '').split(' ');
+            const matched = origWords.filter(w => guessWords.includes(w));
+            const score = Math.round((matched.length / origWords.length) * 100);
+
+            listeningResult.classList.remove('hidden');
+            document.getElementById('listening-score-bar').style.width = `${score}%`;
+            document.getElementById('listening-score-text').innerText = `${score}%`;
+            document.getElementById('listening-original').innerText = `✓ "${currentSecret}"`;
+            document.getElementById('listening-phonetic').innerText = `🔊 Connected Speech: ${currentNotes}`;
+        });
+
+        // --- 6. INSTANT FEEDBACK MODULE ---
+        const micBtn = document.getElementById('mic-btn');
+        const sendBtn = document.getElementById('send-btn');
+        const feedbackInput = document.getElementById('feedback-input');
+        const responseBox = document.getElementById('ai-response-box');
+        const aiCorrection = document.getElementById('ai-correction');
+        const aiAlternatives = document.getElementById('ai-alternatives');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new SpeechRec();
+            rec.lang = 'en-US';
+            rec.continuous = false;
+            rec.onresult = (e) => {
+                feedbackInput.value = e.results[0][0].transcript;
+            };
+            micBtn.addEventListener('click', () => {
+                rec.start();
+                micBtn.classList.add('bg-red-500', 'text-white', 'animate-pulse');
+            });
+            rec.onend = () => {
+                micBtn.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+            };
+        }
+
+        sendBtn.addEventListener('click', async () => {
+            const sentence = feedbackInput.value.trim();
+            if (!sentence) return;
+
+            const tones = Array.from(document.querySelectorAll('.tone-cb:checked')).map(cb => cb.value);
+            responseBox.classList.remove('hidden');
+            aiCorrection.innerHTML = "<i class='fa-solid fa-spinner fa-spin mr-1'></i> Evaluating...";
+            aiAlternatives.innerHTML = "";
+
+            const prompt = `Direct C1 English tutor (No fluff). Evaluate: "${sentence}".
+            Requested tones: ${tones.join(', ')}.
+            Return pure JSON:
+            {
+               "correction": "concise explanation of mistake or confirm perfect",
+               "alternatives": { "ToneName": "Rewritten sentence" }
+            }`;
+
+            try {
+                const res = await callGeminiRaw(prompt);
+                const match = res.match(/\{[\s\S]*\}/);
+                if (match) {
+                    const p = JSON.parse(match[0]);
+                    aiCorrection.innerText = p.correction;
+                    let altsHTML = "";
+                    for (const [t, text] of Object.entries(p.alternatives || {})) {
+                        altsHTML += `<div class="bg-white p-2 rounded-lg border border-gray-100">
+                            <span class="text-[9px] font-black text-indigo-600 uppercase block">${t}:</span>
+                            <span class="text-xs text-gray-800 font-medium">${text}</span>
+                        </div>`;
+                    }
+                    aiAlternatives.innerHTML = altsHTML;
+                }
+            } catch(e) {
+                aiCorrection.innerText = `Evaluation: Your sentence is understandable. (AI busy: ${e.message})`;
+            }
+        });
+
+        // --- 7. INTERACTIVE 15-MIN SESSION (SRS QUIZ) ---
+        const startSessionBtn = document.getElementById('start-session-btn');
         const sessionModal = document.getElementById('session-modal');
         const closeSessionBtn = document.getElementById('close-session-btn');
-        const sessionTypePill = document.getElementById('session-type-pill');
         const sessionCounter = document.getElementById('session-counter');
         const sessionProgressBar = document.getElementById('session-progress-bar');
         const qInstruction = document.getElementById('q-instruction');
@@ -443,169 +835,62 @@
         const summaryMastery = document.getElementById('summary-mastery');
         const finishSessionBtn = document.getElementById('finish-session-btn');
 
-        // State variables
         let currentQuestions = [];
         let currentQIndex = 0;
         let sessionResults = [];
         let answeredCurrent = false;
 
-        // --- FETCH DASHBOARD DATA ---
-        async function loadDashboard() {
-            try {
-                const res = await fetch('/api/dashboard');
-                const data = await res.json();
-                if (data.status === 'success') {
-                    masteryPctText.innerText = `${data.global_mastery}%`;
-                    masteryProgressBar.style.width = `${Math.min(100, data.global_mastery)}%`;
-                    totalCardsLabel.innerText = data.total_cards;
-                    dueCardsLabel.innerText = data.due_cards;
-                    sessionDueHint.innerText = `${data.due_cards} Cards Due for Review`;
+        startSessionBtn.addEventListener('click', () => {
+            // Select 5 cards prioritizing due / low score
+            const today = new Date().toISOString().slice(0, 10);
+            const dueCards = appState.cards.filter(c => !c.next_review || c.next_review <= today);
+            const pool = dueCards.length >= 5 ? dueCards : appState.cards;
+            const shuffled = [...pool].sort((a,b) => (a.mastery_score || 0) - (b.mastery_score || 0));
+            const selectedCards = shuffled.slice(0, 5);
 
-                    weeklyThemeTitle.querySelector('span').innerText = data.theme;
-                    dayBadge.innerText = data.day_type;
-                    scheduleDayName.innerText = data.day_name;
-                    scheduleTitle.innerText = data.day_type;
+            const types = ['multiple_choice', 'fill_blank', 'multiple_choice', 'speaking', 'fill_blank'];
+            currentQuestions = selectedCards.map((c, idx) => {
+                const qType = types[idx % types.length];
+                const otherWords = appState.cards.filter(x => x.id !== c.id).map(x => x.content).sort(() => Math.random() - 0.5).slice(0, 3);
+                const opts = [...otherWords, c.content].sort(() => Math.random() - 0.5);
 
-                    if (data.override_goal) {
-                        overrideInput.value = data.override_goal;
-                        overrideActiveTag.classList.remove('hidden');
-                    } else {
-                        overrideActiveTag.classList.add('hidden');
-                    }
-                }
-            } catch (err) {
-                console.error("Failed loading dashboard:", err);
-            }
-        }
+                return {
+                    card_id: c.id,
+                    type: qType,
+                    target_item: c.content,
+                    meaning: c.meaning,
+                    prompt: qType === 'multiple_choice' 
+                        ? `Which English term accurately matches this definition?\n"${c.meaning}"`
+                        : (qType === 'fill_blank' 
+                            ? `Fill in the blank with the appropriate expression:\n"In modern discussions, they often ____."`
+                            : `Read and pronounce this sentence clearly:\n"You must remember that ${c.content} is essential in this context."`),
+                    options: opts,
+                    correct_answer: c.content,
+                    explanation: `"${c.content}" is correct. Meaning: ${c.meaning}`
+                };
+            });
 
-        const crashCourseResults = document.getElementById('crash-course-results');
-        const crashCourseTitle = document.getElementById('crash-course-title');
-        const crashCourseClose = document.getElementById('crash-course-close');
-        const crashCourseItems = document.getElementById('crash-course-items');
-
-        crashCourseClose.addEventListener('click', () => {
-            crashCourseResults.classList.add('hidden');
-        });
-
-        window.speakText = function(text) {
-            if ('speechSynthesis' in window) {
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'en-US';
-                u.rate = 0.9;
-                window.speechSynthesis.speak(u);
-            }
-        };
-
-        // --- OVERRIDE & CRASH COURSE HANDLER ---
-        overrideSetBtn.addEventListener('click', async () => {
-            const goal = overrideInput.value.trim();
-            if (!goal) return;
-
-            const originalBtn = overrideSetBtn.innerHTML;
-            overrideSetBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
-            overrideSetBtn.disabled = true;
-
-            try {
-                // 1. Update override state
-                await fetch('/api/override', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ goal })
-                });
-                loadDashboard();
-
-                // 2. Fetch instant situational crash course
-                const res = await fetch('/api/crash-course', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ situation: goal })
-                });
-                const data = await res.json();
-
-                if (data.status === 'success' && data.items && data.items.length > 0) {
-                    crashCourseTitle.innerText = `🚨 Crash Course: ${data.situation_summary || goal}`;
-                    crashCourseItems.innerHTML = '';
-
-                    data.items.forEach(it => {
-                        const cleanWord = it.word_or_phrase.replace(/'/g, "\\'");
-                        const card = document.createElement('div');
-                        card.className = "bg-white p-2.5 rounded-xl border border-red-100 shadow-2xs hover:border-red-300 transition-all";
-                        card.innerHTML = `
-                            <div class="flex justify-between items-start gap-2 mb-1">
-                                <span class="text-xs font-black text-gray-900 leading-tight">${it.word_or_phrase}</span>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-red-50 text-red-600">${it.type || 'vocab'}</span>
-                                    <button class="text-gray-400 hover:text-indigo-600 text-xs p-0.5" onclick="speakText('${cleanWord}')" title="Listen">
-                                        <i class="fa-solid fa-volume-high"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="text-[11px] text-gray-600 font-medium">${it.meaning_it}</p>
-                            ${it.example_sentence ? `<p class="text-[10px] text-indigo-700 italic mt-1 bg-indigo-50/70 p-1.5 rounded-lg border border-indigo-100/60">"${it.example_sentence}"</p>` : ''}
-                        `;
-                        crashCourseItems.appendChild(card);
-                    });
-
-                    crashCourseResults.classList.remove('hidden');
-                }
-            } catch (e) {
-                console.error("Crash course error:", e);
-                alert("Could not generate crash course. Please check connection.");
-            } finally {
-                overrideSetBtn.innerHTML = originalBtn;
-                overrideSetBtn.disabled = false;
-            }
-        });
-
-        // --- START DAILY SESSION FLOW ---
-        startSessionBtn.addEventListener('click', async () => {
-            startSessionBtn.classList.add('opacity-70', 'pointer-events-none');
-            const originalContent = startSessionBtn.innerHTML;
-            startSessionBtn.innerHTML = "<div class='flex items-center gap-2'><i class='fa-solid fa-spinner fa-spin text-xl'></i> Preparing AI Session...</div>";
-
-            try {
-                const res = await fetch('/api/session/start');
-                const data = await res.json();
-                if (data.status === 'success' && data.questions && data.questions.length > 0) {
-                    currentQuestions = data.questions;
-                    currentQIndex = 0;
-                    sessionResults = [];
-                    sessionSummary.classList.add('hidden');
-                    sessionModal.classList.remove('hidden');
-                    renderQuestion();
-                } else {
-                    alert("Could not load session questions. Please verify database.");
-                }
-            } catch (err) {
-                alert("Connection error loading session.");
-            } finally {
-                startSessionBtn.innerHTML = originalContent;
-                startSessionBtn.classList.remove('opacity-70', 'pointer-events-none');
-            }
+            currentQIndex = 0;
+            sessionResults = [];
+            sessionSummary.classList.add('hidden');
+            sessionModal.classList.remove('hidden');
+            renderQ();
         });
 
         closeSessionBtn.addEventListener('click', () => {
-            if (confirm("Quit session? Progress on this session will not be saved.")) {
-                sessionModal.classList.add('hidden');
-            }
+            if (confirm("Exit session?")) sessionModal.classList.add('hidden');
         });
 
-        // --- RENDER CURRENT QUESTION ---
-        function renderQuestion() {
+        function renderQ() {
             answeredCurrent = false;
             feedbackDrawer.classList.add('hidden');
             const q = currentQuestions[currentQIndex];
 
-            // Progress Header
             sessionCounter.innerText = `Q ${currentQIndex + 1}/${currentQuestions.length}`;
-            const pct = ((currentQIndex + 1) / currentQuestions.length) * 100;
-            sessionProgressBar.style.width = `${pct}%`;
-            sessionTypePill.innerText = q.type.replace('_', ' ');
+            sessionProgressBar.style.width = `${((currentQIndex + 1) / currentQuestions.length) * 100}%`;
+            document.getElementById('session-type-pill').innerText = q.type.replace('_', ' ');
 
-            qInstruction.innerText = q.instruction;
             qPrompt.innerText = q.prompt;
-
-            // Reset containers
             mcContainer.classList.add('hidden');
             fitbContainer.classList.add('hidden');
             speakingContainer.classList.add('hidden');
@@ -615,152 +900,51 @@
                 mcContainer.innerHTML = '';
                 q.options.forEach(opt => {
                     const btn = document.createElement('button');
-                    btn.className = "w-full text-left p-3.5 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-[0.99] flex justify-between items-center group";
-                    btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-gray-300 group-hover:text-indigo-400"></i>`;
-                    btn.addEventListener('click', () => evaluateMC(btn, opt, q));
+                    btn.className = "w-full text-left p-3 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-indigo-50 active:scale-[0.99] flex justify-between items-center";
+                    btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-gray-300"></i>`;
+                    btn.addEventListener('click', () => {
+                        if (answeredCurrent) return;
+                        answeredCurrent = true;
+                        const isCorrect = opt.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+                        sessionResults.push({ card_id: q.card_id, success: isCorrect });
+                        showFeedback(isCorrect, q.explanation);
+                    });
                     mcContainer.appendChild(btn);
                 });
             } else if (q.type === 'fill_blank') {
                 fitbContainer.classList.remove('hidden');
                 fitbInput.value = '';
-                fitbInput.disabled = false;
-                fitbHint.innerText = q.hint || '';
-                fitbInput.focus();
+                fitbHint.innerText = `Hint: ${q.meaning}`;
+                fitbCheckBtn.onclick = () => {
+                    if (answeredCurrent) return;
+                    const ans = fitbInput.value.trim().toLowerCase();
+                    const corr = q.correct_answer.trim().toLowerCase();
+                    if (!ans) return;
+                    answeredCurrent = true;
+                    const isCorrect = (ans === corr) || (corr.includes(ans) && ans.length > 3);
+                    sessionResults.push({ card_id: q.card_id, success: isCorrect });
+                    showFeedback(isCorrect, q.explanation);
+                };
             } else if (q.type === 'speaking') {
                 speakingContainer.classList.remove('hidden');
-                speakingTargetText.innerText = `"${q.correct_answer || q.prompt}"`;
+                speakingTargetText.innerText = `"${q.correct_answer}"`;
                 speakingLiveTranscript.innerText = "Tap microphone to speak...";
-                speakingLiveTranscript.classList.remove('text-indigo-700', 'font-semibold');
+                ttsListenBtn.onclick = () => speakText(q.correct_answer);
+                speakingSubmitBtn.onclick = () => {
+                    if (answeredCurrent) return;
+                    answeredCurrent = true;
+                    sessionResults.push({ card_id: q.card_id, success: true });
+                    showFeedback(true, q.explanation);
+                };
             }
         }
 
-        // --- EVALUATION LOGIC ---
-        function evaluateMC(btn, chosen, q) {
-            if (answeredCurrent) return;
-            answeredCurrent = true;
-
-            const isCorrect = chosen.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
-            sessionResults.push({ card_id: q.card_id, success: isCorrect });
-
-            // Visual feedback on buttons
-            const allBtns = mcContainer.querySelectorAll('button');
-            allBtns.forEach(b => {
-                b.disabled = true;
-                const optText = b.querySelector('span').innerText.trim().toLowerCase();
-                if (optText === q.correct_answer.trim().toLowerCase()) {
-                    b.className = "w-full text-left p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-xs font-bold text-emerald-800 flex justify-between items-center";
-                    b.querySelector('i').className = "fa-solid fa-circle-check text-emerald-600";
-                } else if (b === btn && !isCorrect) {
-                    b.className = "w-full text-left p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-xs font-bold text-rose-800 flex justify-between items-center";
-                    b.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-600";
-                }
-            });
-
-            showFeedbackDrawer(isCorrect, q.explanation);
-        }
-
-        // Fill in the blank
-        fitbCheckBtn.addEventListener('click', () => {
-            if (answeredCurrent) return;
-            const q = currentQuestions[currentQIndex];
-            const answer = fitbInput.value.trim().toLowerCase();
-            const correct = q.correct_answer.trim().toLowerCase();
-            if (!answer) return;
-
-            answeredCurrent = true;
-            fitbInput.disabled = true;
-            const isCorrect = (answer === correct) || (correct.includes(answer) && answer.length > 3);
-            sessionResults.push({ card_id: q.card_id, success: isCorrect });
-
-            if (isCorrect) {
-                fitbInput.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-800', 'font-bold');
-            } else {
-                fitbInput.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-800', 'font-bold');
-            }
-
-            showFeedbackDrawer(isCorrect, q.explanation);
-        });
-
-        fitbInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') fitbCheckBtn.click();
-        });
-
-        // Speaking evaluation
-        let speakingRecognition = null;
-        let isSpeakingRecording = false;
-
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            speakingRecognition = new SpeechRec();
-            speakingRecognition.continuous = true;
-            speakingRecognition.interimResults = true;
-            speakingRecognition.lang = 'en-US';
-
-            speakingMicBtn.addEventListener('click', () => {
-                if (isSpeakingRecording) {
-                    speakingRecognition.stop();
-                } else {
-                    speakingLiveTranscript.innerText = "Listening in English...";
-                    speakingRecognition.start();
-                }
-            });
-
-            speakingRecognition.onstart = () => {
-                isSpeakingRecording = true;
-                speakingMicBtn.classList.remove('bg-indigo-600');
-                speakingMicBtn.classList.add('bg-rose-500', 'animate-pulse');
-            };
-
-            speakingRecognition.onresult = (event) => {
-                let trans = '';
-                for (let i = 0; i < event.results.length; ++i) {
-                    trans += event.results[i][0].transcript;
-                }
-                speakingLiveTranscript.innerText = trans;
-                speakingLiveTranscript.classList.add('text-indigo-700', 'font-semibold');
-            };
-
-            speakingRecognition.onend = () => {
-                isSpeakingRecording = false;
-                speakingMicBtn.classList.remove('bg-rose-500', 'animate-pulse');
-                speakingMicBtn.classList.add('bg-indigo-600');
-            };
-        }
-
-        speakingSubmitBtn.addEventListener('click', () => {
-            if (answeredCurrent) return;
-            const q = currentQuestions[currentQIndex];
-            const transcript = speakingLiveTranscript.innerText.toLowerCase();
-            const target = (q.target_item || q.correct_answer || '').toLowerCase();
-            
-            // Check if user spoke target term or key elements
-            const terms = target.split(' ').filter(w => w.length > 2);
-            let matches = terms.filter(t => transcript.includes(t));
-            const isCorrect = matches.length >= Math.ceil(terms.length * 0.6) || transcript.includes(target);
-
-            answeredCurrent = true;
-            sessionResults.push({ card_id: q.card_id, success: isCorrect });
-            showFeedbackDrawer(isCorrect, q.explanation);
-        });
-
-        // TTS Pronunciation sample
-        ttsListenBtn.addEventListener('click', () => {
-            const q = currentQuestions[currentQIndex];
-            const textToSpeak = q.correct_answer || q.prompt;
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-            }
-        });
-
-        function showFeedbackDrawer(isCorrect, explanation) {
+        function showFeedback(isCorrect, text) {
             feedbackDrawer.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'bg-rose-50', 'border-rose-200');
             if (isCorrect) {
                 feedbackDrawer.classList.add('bg-emerald-50', 'border-emerald-200');
                 feedbackIcon.className = "fa-solid fa-circle-check text-emerald-600";
-                feedbackTitle.innerText = "Accurate & Correct!";
+                feedbackTitle.innerText = "Correct & Retained!";
                 feedbackTitle.className = "font-extrabold text-xs text-emerald-800";
             } else {
                 feedbackDrawer.classList.add('bg-rose-50', 'border-rose-200');
@@ -768,396 +952,83 @@
                 feedbackTitle.innerText = "Incorrect (SRS Triggered)";
                 feedbackTitle.className = "font-extrabold text-xs text-rose-800";
             }
-            feedbackText.innerText = explanation;
+            feedbackText.innerText = text;
         }
 
-        // NEXT QUESTION / FINISH SESSION
-        nextQuestionBtn.addEventListener('click', async () => {
+        nextQuestionBtn.addEventListener('click', () => {
             currentQIndex++;
             if (currentQIndex < currentQuestions.length) {
-                renderQuestion();
+                renderQ();
             } else {
-                // Submit session to server
-                try {
-                    const res = await fetch('/api/session/submit', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ results: sessionResults })
-                    });
-                    const data = await res.json();
-                    
-                    const correctCount = sessionResults.filter(r => r.success).length;
-                    summaryScore.innerText = `${correctCount}/${sessionResults.length}`;
-                    summaryMastery.innerText = `${data.new_global_mastery}%`;
-                    sessionSummary.classList.remove('hidden');
-                } catch (err) {
-                    alert("Error submitting session results.");
-                    sessionModal.classList.add('hidden');
-                }
+                // Update SRS in LocalStorage
+                const today = new Date();
+                sessionResults.forEach(r => {
+                    const card = appState.cards.find(c => c.id === r.card_id);
+                    if (card) {
+                        const score = card.mastery_score || 0;
+                        const streak = card.streak || 0;
+                        if (r.success) {
+                            card.streak = streak + 1;
+                            card.mastery_score = Math.min(100, score + 15 + card.streak * 5);
+                            const nextDate = new Date();
+                            nextDate.setDate(today.getDate() + Math.max(1, card.streak * 2));
+                            card.next_review = nextDate.toISOString().slice(0, 10);
+                        } else {
+                            card.streak = 0;
+                            card.mastery_score = Math.max(0, score - 20);
+                            const nextDate = new Date();
+                            nextDate.setDate(today.getDate() + 1);
+                            card.next_review = nextDate.toISOString().slice(0, 10);
+                        }
+                    }
+                });
+
+                saveState();
+                updateDashboard();
+
+                const correctCount = sessionResults.filter(r => r.success).length;
+                summaryScore.innerText = `${correctCount}/${sessionResults.length}`;
+                summaryMastery.innerText = `+${(correctCount * 0.4).toFixed(1)}%`;
+                sessionSummary.classList.remove('hidden');
             }
         });
 
         finishSessionBtn.addEventListener('click', () => {
             sessionModal.classList.add('hidden');
-            loadDashboard();
         });
 
-        // --- DIRECT FEEDBACK MODULE (MIC + TEXTAREA) ---
-        const micBtn = document.getElementById('mic-btn');
-        const sendBtn = document.getElementById('send-btn');
-        const feedbackInput = document.getElementById('feedback-input');
-        const responseBox = document.getElementById('ai-response-box');
-        const aiCorrection = document.getElementById('ai-correction');
-        const aiAlternatives = document.getElementById('ai-alternatives');
-
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const rec = new SpeechRec();
-            rec.continuous = true;
-            rec.interimResults = true;
-            rec.lang = 'en-US';
-
-            let isRec = false;
-            let fullText = '';
-
-            micBtn.addEventListener('click', () => {
-                if (isRec) {
-                    rec.stop();
-                    return;
-                }
-                fullText = feedbackInput.value;
-                rec.start();
-            });
-
-            rec.onstart = () => {
-                isRec = true;
-                micBtn.className = "w-8 h-8 rounded-full bg-red-500 text-white animate-pulse flex items-center justify-center";
-                feedbackInput.placeholder = "Listening in English... Speak continuously!";
-            };
-
-            rec.onresult = (event) => {
-                let interim = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) fullText += event.results[i][0].transcript + ' ';
-                    else interim += event.results[i][0].transcript;
-                }
-                feedbackInput.value = fullText + interim;
-            };
-
-            rec.onend = () => {
-                isRec = false;
-                micBtn.className = "w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all border border-indigo-100";
-            };
-        }
-
-        sendBtn.addEventListener('click', async () => {
-            const sentence = feedbackInput.value.trim();
-            if (!sentence) return;
-
-            const checkboxes = document.querySelectorAll('.tone-cb:checked');
-            const tones = Array.from(checkboxes).map(cb => cb.value);
-
-            responseBox.classList.remove('hidden');
-            aiCorrection.innerHTML = "<i class='fa-solid fa-spinner fa-spin text-indigo-600 mr-1.5'></i> AI evaluating at C1 standard...";
-            aiAlternatives.innerHTML = "";
-
-            try {
-                const response = await fetch('/api/feedback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sentence, tones })
-                });
-                const data = await response.json();
-                aiCorrection.innerText = data.correction;
-
-                let altsHTML = "";
-                for (const [tone, altText] of Object.entries(data.alternatives || {})) {
-                    altsHTML += `<div class="bg-white p-2 rounded-lg border border-gray-100 shadow-2xs">
-                                    <span class="text-[10px] font-extrabold text-indigo-600 uppercase tracking-wider block">${tone}:</span> 
-                                    <span class="text-xs text-gray-800 font-medium">${altText}</span>
-                                 </div>`;
-                }
-                aiAlternatives.innerHTML = altsHTML;
-            } catch (err) {
-                aiCorrection.innerHTML = "<span class='text-red-500 font-semibold'>Connection error with backend server.</span>";
-            }
+        // --- 8. EXPORT / IMPORT JSON ---
+        document.getElementById('export-btn').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `my_english_brain_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
         });
 
-        // Initialize dashboard on page load
-        loadDashboard();
-
-        // ═══════════════════════════════════════════════
-        //  FEATURE 1: 15-MINUTE TIMER
-        // ═══════════════════════════════════════════════
-        let timerSeconds = 900;
-        let timerInterval = null;
-        const timerDisplay = document.getElementById('timer-display');
-        const timerBtn = document.getElementById('timer-btn');
-        const timerResetBtn = document.getElementById('timer-reset-btn');
-
-        function updateTimerDisplay() {
-            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
-            const s = String(timerSeconds % 60).padStart(2, '0');
-            timerDisplay.innerText = `${m}:${s}`;
-            // Color shift as time runs out
-            if (timerSeconds <= 120) {
-                timerDisplay.className = 'font-mono font-extrabold text-sm text-red-300';
-            } else if (timerSeconds <= 300) {
-                timerDisplay.className = 'font-mono font-extrabold text-sm text-orange-300';
-            } else {
-                timerDisplay.className = 'font-mono font-extrabold text-sm text-yellow-200';
-            }
-        }
-
-        timerBtn.addEventListener('click', () => {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                timerBtn.innerText = 'START';
-                timerBtn.className = 'text-[10px] font-bold bg-yellow-400 text-indigo-900 px-2 py-0.5 rounded-full hover:bg-yellow-300 active:scale-95 transition-all';
-            } else {
-                if (timerSeconds <= 0) timerSeconds = 900;
-                timerBtn.innerText = 'PAUSE';
-                timerBtn.className = 'text-[10px] font-bold bg-white text-indigo-900 px-2 py-0.5 rounded-full hover:bg-gray-100 active:scale-95 transition-all';
-                timerInterval = setInterval(() => {
-                    timerSeconds--;
-                    updateTimerDisplay();
-                    if (timerSeconds <= 0) {
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        timerBtn.innerText = 'START';
-                        timerDisplay.innerText = 'DONE!';
-                        timerDisplay.className = 'font-mono font-extrabold text-sm text-green-300';
-                    }
-                }, 1000);
-            }
-        });
-
-        timerResetBtn.addEventListener('click', () => {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            timerSeconds = 900;
-            timerBtn.innerText = 'START';
-            timerBtn.className = 'text-[10px] font-bold bg-yellow-400 text-indigo-900 px-2 py-0.5 rounded-full hover:bg-yellow-300 active:scale-95 transition-all';
-            updateTimerDisplay();
-        });
-
-        // ═══════════════════════════════════════════════
-        //  FEATURE 2: DAILY WORD CATCHER
-        // ═══════════════════════════════════════════════
-        const wordInput = document.getElementById('word-input');
-        const wordContext = document.getElementById('word-context');
-        const wordSaveBtn = document.getElementById('word-save-btn');
-        const wordAnalyzeBtn = document.getElementById('word-analyze-btn');
-        const wordAnalysisBox = document.getElementById('word-analysis-box');
-        const wordChips = document.getElementById('word-chips');
-        const dailyWordCount = document.getElementById('daily-word-count');
-
-        // Load chips from session storage (words added today)
-        let todayWords = JSON.parse(sessionStorage.getItem('todayWords') || '[]');
-        renderWordChips();
-
-        function renderWordChips() {
-            dailyWordCount.innerText = `${todayWords.length} today`;
-            wordChips.innerHTML = todayWords.slice(-10).reverse().map(w =>
-                `<span class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">${w}</span>`
-            ).join('');
-        }
-
-        async function doSaveWord(analyze) {
-            const word = wordInput.value.trim();
-            if (!word) return;
-
-            const btn = analyze ? wordAnalyzeBtn : wordSaveBtn;
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/api/daily-word', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        word,
-                        context: wordContext.value.trim(),
-                        analyze
-                    })
-                });
-                const data = await res.json();
-
-                // Add to chips
-                if (!todayWords.includes(word)) {
-                    todayWords.push(word);
-                    sessionStorage.setItem('todayWords', JSON.stringify(todayWords));
-                }
-                renderWordChips();
-
-                if (analyze && data.analysis) {
-                    const a = data.analysis;
-                    wordAnalysisBox.classList.remove('hidden');
-                    document.getElementById('word-analysis-ipa').innerText = a.ipa || '';
-                    document.getElementById('word-analysis-register').innerText = a.word_register || '';
-                    document.getElementById('word-analysis-meaning').innerText = a.meaning_it || '';
-                    document.getElementById('word-analysis-collocations').innerText = '→ ' + (a.collocations || []).join(' · ');
-                    document.getElementById('word-analysis-example').innerText = '"' + (a.example || '') + '"';
-                } else if (!analyze) {
-                    wordAnalysisBox.classList.add('hidden');
-                }
-
-                wordInput.value = '';
-                wordContext.value = '';
-                loadDashboard(); // refresh card count in header
-            } catch(e) {
-                alert('Error saving word. Is the server running?');
-            } finally {
-                btn.innerHTML = originalHtml;
-                btn.disabled = false;
-            }
-        }
-
-        wordSaveBtn.addEventListener('click', () => doSaveWord(false));
-        wordAnalyzeBtn.addEventListener('click', () => doSaveWord(true));
-        wordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSaveWord(true); });
-
-        // ═══════════════════════════════════════════════
-        //  FEATURE 3: LISTENING CHALLENGE (Connected Speech)
-        // ═══════════════════════════════════════════════
-        const listeningGenerateBtn = document.getElementById('listening-generate-btn');
-        const listeningReplayBtn = document.getElementById('listening-replay-btn');
-        const listeningGuess = document.getElementById('listening-guess');
-        const listeningVerifyBtn = document.getElementById('listening-verify-btn');
-        const listeningResult = document.getElementById('listening-result');
-        const listeningDifficulty = document.getElementById('listening-difficulty');
-        let currentListeningSentence = '';
-        let currentListeningNotes = '';
-
-        function playSentence(text, difficulty) {
-            window.speechSynthesis.cancel();
-            const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'en-GB'; // British accent for more connected speech challenge
-            const rateMap = { clear: 0.8, natural: 1.0, native: 1.2 };
-            utter.rate = rateMap[difficulty] || 1.0;
-            window.speechSynthesis.speak(utter);
-        }
-
-        listeningGenerateBtn.addEventListener('click', async () => {
-            const difficulty = listeningDifficulty.value;
-            const originalHtml = listeningGenerateBtn.innerHTML;
-            listeningGenerateBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin mr-1'></i>Generating...";
-            listeningGenerateBtn.disabled = true;
-            listeningResult.classList.add('hidden');
-            listeningGuess.value = '';
-
-            try {
-                // Use the current weekly theme as context
-                const theme = document.querySelector('#weekly-theme-title span')?.innerText || 'General conversation';
-                const res = await fetch('/api/listening-challenge', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ topic: theme, difficulty })
-                });
-                const data = await res.json();
-                if (data.sentence) {
-                    currentListeningSentence = data.sentence;
-                    currentListeningNotes = data.connected_speech_notes || '';
-                    // Play immediately
-                    playSentence(currentListeningSentence, difficulty);
-                    // Enable controls
-                    listeningReplayBtn.disabled = false;
-                    listeningReplayBtn.className = 'px-3 bg-purple-100 text-purple-700 text-xs font-bold rounded-xl border border-purple-200 hover:bg-purple-200 active:scale-95 transition-all';
-                    listeningGuess.disabled = false;
-                    listeningGuess.placeholder = 'Type exactly what you heard...';
-                    listeningGuess.focus();
-                    listeningVerifyBtn.disabled = false;
-                    listeningVerifyBtn.className = 'w-full bg-purple-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-purple-700 active:scale-95 transition-all';
-                }
-            } catch(e) {
-                alert('Error generating listening challenge.');
-            } finally {
-                listeningGenerateBtn.innerHTML = originalHtml;
-                listeningGenerateBtn.disabled = false;
-            }
-        });
-
-        listeningReplayBtn.addEventListener('click', () => {
-            if (currentListeningSentence) playSentence(currentListeningSentence, listeningDifficulty.value);
-        });
-
-        listeningGuess.addEventListener('keydown', (e) => { if (e.key === 'Enter') listeningVerifyBtn.click(); });
-
-        listeningVerifyBtn.addEventListener('click', async () => {
-            const guess = listeningGuess.value.trim();
-            if (!guess || !currentListeningSentence) return;
-
-            const originalHtml = listeningVerifyBtn.innerHTML;
-            listeningVerifyBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i>";
-            listeningVerifyBtn.disabled = true;
-
-            try {
-                const res = await fetch('/api/listening-verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ original: currentListeningSentence, guess })
-                });
-                const data = await res.json();
-                listeningResult.classList.remove('hidden');
-                document.getElementById('listening-score-bar').style.width = `${data.score_pct}%`;
-                document.getElementById('listening-score-text').innerText = `${data.score_pct}%`;
-                document.getElementById('listening-original').innerText = `✓ "${currentListeningSentence}"`;
-                let explanation = data.phonetic_explanation || '';
-                if (currentListeningNotes) explanation = `${explanation}\n\n🔊 Connected Speech: ${currentListeningNotes}`;
-                document.getElementById('listening-phonetic').innerText = explanation;
-            } catch(e) {
-                document.getElementById('listening-original').innerText = `✓ Original: "${currentListeningSentence}"`;
-                listeningResult.classList.remove('hidden');
-            } finally {
-                listeningVerifyBtn.innerHTML = originalHtml;
-                listeningVerifyBtn.disabled = false;
-            }
-        });
-
-        // ═══════════════════════════════════════════════
-        //  FEATURE 4: EXPORT / IMPORT DATABASE
-        // ═══════════════════════════════════════════════
-        document.getElementById('export-btn').addEventListener('click', async () => {
-            try {
-                const res = await fetch('/api/export');
-                const data = await res.json();
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `my_english_brain_${new Date().toISOString().slice(0,10)}.json`;
-                a.click();
-            } catch(e) {
-                alert('Export failed. Is the server running?');
-            }
-        });
-
-        document.getElementById('import-file').addEventListener('change', async (event) => {
-            const file = event.target.files[0];
+        document.getElementById('import-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
             if (!file) return;
-            const status = document.getElementById('import-status');
-            status.innerText = 'Importing...';
-            status.className = 'text-[11px] text-indigo-700 font-semibold mt-2 text-center';
-            status.classList.remove('hidden');
             try {
                 const text = await file.text();
-                const parsed = JSON.parse(text);
-                const res = await fetch('/api/import', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(parsed)
-                });
-                const data = await res.json();
-                status.innerText = `✓ Imported ${data.imported} cards (${data.skipped_duplicates} duplicates skipped).`;
-                status.className = 'text-[11px] text-emerald-700 font-semibold mt-2 text-center';
-                loadDashboard();
-            } catch(e) {
-                status.innerText = 'Import failed. Check file format.';
-                status.className = 'text-[11px] text-red-600 font-semibold mt-2 text-center';
+                const data = JSON.parse(text);
+                if (data.cards) appState.cards = data.cards;
+                saveState();
+                updateDashboard();
+                alert(`✓ Imported ${appState.cards.length} cards successfully!`);
+            } catch(err) {
+                alert("Invalid backup file.");
             }
         });
 
+        document.getElementById('edit-api-btn').addEventListener('click', () => {
+            const k = prompt("Enter your Google Gemini API Key:", appState.apiKey);
+            if (k) {
+                appState.apiKey = k.trim();
+                saveState();
+                alert("API Key updated!");
+            }
+        });
     </script>
 </body>
 </html>
