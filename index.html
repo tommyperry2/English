@@ -294,6 +294,22 @@
     <!-- Body -->
     <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50 flex flex-col justify-between">
       
+      <!-- LOADING CONTAINER (Active while AI generates contextual questions) -->
+      <div id="workout-loading-container" class="max-w-md mx-auto w-full my-auto text-center py-12 px-4 space-y-4 hidden animate-pop">
+        <div class="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-xl shadow-indigo-500/20 animate-bounce">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">AI Crafting Today's Workout...</h3>
+          <p id="workout-loading-subtext" class="text-xs text-slate-500 leading-relaxed font-medium">
+            Weaving 20 items from your notes database into today's theme.
+          </p>
+        </div>
+        <div class="w-48 mx-auto bg-slate-200 h-1.5 rounded-full overflow-hidden">
+          <div class="bg-gradient-to-r from-amber-500 to-indigo-600 h-full w-2/3 animate-pulse"></div>
+        </div>
+      </div>
+
       <!-- QUESTION ACTIVE CONTAINER -->
       <div id="workout-q-container" class="max-w-xl mx-auto w-full flex-1 flex flex-col justify-between">
         
@@ -1131,76 +1147,176 @@ Be specific and intellectually interesting. Return ONLY JSON:
       }
     }
 
-    /* 20-QUESTION WORKOUT ENGINE */
-    function buildWorkoutQuestions(cards, theme) {
-      const types = ['vocab_match', 'gap_fill', 'true_or_false', 'collocation_pick', 'listening_dictation', 'speaking_drill', 'context_scenario', 'register_check'];
-      
-      // shuffle cards, pick 20
-      const shuffled = [...cards].sort(() => Math.random() - 0.5);
-      const picked = shuffled.slice(0, 20);
-      
-      return picked.map((card, i) => {
-        // Rotate through types but shuffle the order
-        const typesShuffled = [...types].sort(() => Math.random() - 0.5);
-        const qType = typesShuffled[i % typesShuffled.length];
-        
-        // Get 3 distractors of same type for MC
-        let distractors = cards
-          .filter(c => c.term !== card.term && c.type === card.type)
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 3)
-          .map(c => c.term);
-          
-        if (distractors.length < 3) {
-          const extra = cards
-            .filter(c => c.term !== card.term && !distractors.includes(c.term))
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 3 - distractors.length)
-            .map(c => c.term);
-          distractors = [...distractors, ...extra];
-        }
-        
+    /* 20-QUESTION WORKOUT ENGINE (AI-POWERED WITH THEMATIC CONTEXT + CLEAN FALLBACK) */
+    function buildCleanFallbackQuestions(cards, theme) {
+      const shuffled = [...cards].sort(() => Math.random() - 0.5).slice(0, 20);
+      const types = ['context_scenario', 'gap_fill', 'collocation_match', 'true_or_false', 'listening_dictation', 'speaking_drill'];
+
+      return shuffled.map((card, i) => {
+        const qType = types[i % types.length];
+        const sameType = cards.filter(c => c.term !== card.term && c.type === card.type);
+        const other = cards.filter(c => c.term !== card.term);
+        const pool = sameType.length >= 3 ? sameType : other;
+        const distractors = pool.sort(() => Math.random() - 0.5).slice(0, 3).map(c => c.term);
         const options = [...distractors, card.term].sort(() => Math.random() - 0.5);
-        
-        const q = { card, type: qType, term: card.term, answer: card.term };
-        
-        if (qType === 'vocab_match') {
-          q.prompt = `Which expression means:
-"${card.definition_en}"`;
-          q.options = options;
-        } else if (qType === 'gap_fill') {
-          q.prompt = card.fill_blank_prompt?.includes('____') ? card.fill_blank_prompt : `Complete the sentence with the missing expression: ___ [${card.definition_en.slice(0,40)}]`;
+
+        const cleanSentence = card.fill_blank_prompt?.includes('____') 
+          ? card.fill_blank_prompt 
+          : `She had to ____ before the situation escalated.`;
+        const fullSentence = cleanSentence.replace(/____/g, card.term);
+
+        if (qType === 'gap_fill') {
+          return {
+            card,
+            type: 'gap_fill',
+            term: card.term,
+            answer: card.term,
+            prompt: `Fill in the blank with the correct expression:\n"${cleanSentence}"`,
+            options: null,
+            sentence: fullSentence,
+            explanation: `"${card.term}" is correct. Definition: ${card.definition_en}`
+          };
         } else if (qType === 'true_or_false') {
           const isTrue = Math.random() > 0.5;
-          q.prompt = isTrue 
-            ? `True or False: "${card.term}" means — "${card.definition_en}"`
-            : `True or False: "${card.term}" means — "${distractors[0] ? cards.find(c=>c.term===distractors[0])?.definition_en || 'something else entirely' : 'something else entirely'}"`;
-          q.options = ['TRUE ✓', 'FALSE ✗'];
-          q.answer = isTrue ? 'TRUE ✓' : 'FALSE ✗';
-        } else if (qType === 'collocation_pick') {
-          q.prompt = `Which word or phrase pairs naturally with "${card.term.split(' ')[0]}"?`;
-          q.options = options;
+          const falseCard = distractors[0] ? cards.find(c => c.term === distractors[0]) : null;
+          const defUsed = isTrue ? card.definition_en : (falseCard?.definition_en || 'something completely different');
+          return {
+            card,
+            type: 'true_or_false',
+            term: card.term,
+            answer: isTrue ? 'TRUE ✓' : 'FALSE ✗',
+            prompt: `True or False:\nDoes "${card.term}" mean:\n"${defUsed}"?`,
+            options: ['TRUE ✓', 'FALSE ✗'],
+            sentence: fullSentence,
+            explanation: `"${card.term}" means: ${card.definition_en}`
+          };
         } else if (qType === 'listening_dictation') {
-          q.prompt = 'Listen carefully and type exactly what you hear:';
-          q.sentence = card.fill_blank_prompt?.replace(/____/g, card.term) || card.term;
-          q.type = 'listening_dictation';
+          return {
+            card,
+            type: 'listening_dictation',
+            term: card.term,
+            answer: card.term,
+            prompt: 'Listen carefully to the audio clip and type what you hear:',
+            options: null,
+            sentence: fullSentence,
+            explanation: `Transcribed sentence: "${fullSentence}". Target: "${card.term}".`
+          };
         } else if (qType === 'speaking_drill') {
-          q.prompt = 'Pronounce this sentence clearly:';
-          q.sentence = card.fill_blank_prompt?.replace(/____/g, card.term) || `Use "${card.term}" in context`;
-          q.type = 'speaking_drill';
-        } else if (qType === 'context_scenario') {
-          q.prompt = `In a conversation about "${theme?.micro || 'everyday life'}", someone says something that means "${card.definition_en.slice(0,60)}...". Which expression are they using?`;
-          q.options = options;
-        } else if (qType === 'register_check') {
-          const registers = ['Formal English', 'Informal / Spoken English', 'Both formal and informal'];
-          q.prompt = `Where would you naturally use "${card.term}"?`;
-          q.options = registers;
-          const typeMap = { collocation: 'Both formal and informal', idiom: 'Informal / Spoken English', vocab: 'Both formal and informal', phrasal_verb: 'Informal / Spoken English', dependent_preposition: 'Both formal and informal', grammar_pattern: 'Formal English' };
-          q.answer = typeMap[card.type] || 'Both formal and informal';
+          return {
+            card,
+            type: 'speaking_drill',
+            term: card.term,
+            answer: card.term,
+            prompt: 'Pronounce this sentence clearly with natural C1 intonation:',
+            options: null,
+            sentence: fullSentence,
+            explanation: `Target expression: "${card.term}". Definition: ${card.definition_en}`
+          };
+        } else {
+          return {
+            card,
+            type: 'context_scenario',
+            term: card.term,
+            answer: card.term,
+            prompt: `Which expression means:\n"${card.definition_en}"?`,
+            options: options,
+            sentence: fullSentence,
+            explanation: `✓ "${card.term}" is correct. Definition: ${card.definition_en}`
+          };
         }
-        
-        return q;
       });
+    }
+
+    async function getOrGenerateDailyWorkout(cards, theme) {
+      const today = new Date().toISOString().slice(0, 10);
+      const microSlug = (theme?.micro || 'general').replace(/[^a-zA-Z0-9]/g, '_').slice(0, 25);
+      const cacheKey = `brain_daily_workout_${today}_${microSlug}`;
+
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length >= 10) {
+            return parsed;
+          }
+        } catch(e) {}
+      }
+
+      // Pick 20 cards prioritizing due review cards
+      const due = cards.filter(c => !c.next_review || c.next_review <= today);
+      const nonDue = cards.filter(c => c.next_review && c.next_review > today);
+      const selected = [...due.sort(() => Math.random() - 0.5), ...nonDue.sort(() => Math.random() - 0.5)].slice(0, 20);
+
+      const batch1 = selected.slice(0, 10);
+      const batch2 = selected.slice(10, 20);
+
+      async function requestBatch(batchCards) {
+        const listStr = batchCards.map((c, i) => `${i+1}. "${c.term}" (${c.type}): ${c.definition_en}`).join('\n');
+        const prompt = `You are Tommaso's elite C1 English coach and test designer.
+Today's Theme: "${theme?.micro || 'Modern Life & Technology'}" (Macro: "${theme?.macro || 'General'}").
+
+Here are ${batchCards.length} target vocabulary items, idioms, collocations, or grammar patterns from Tommaso's personal course notes:
+${listStr}
+
+Generate ${batchCards.length} rich, intellectually stimulating, contextualized C1 English questions.
+Every single question MUST be completely written, natural, grammatically flawless, and explicitly set within the context of "${theme?.micro}".
+NEVER truncate sentences. NEVER use template phrases like "someone says something that means...".
+
+Vary question types across:
+- "context_scenario": 4-option multiple choice set in a realistic dilemma or technical/cultural discussion.
+- "gap_fill": A sophisticated sentence about the theme with '____' for the target term.
+- "collocation_match": 4-option multiple choice testing a natural collocation relevant to the theme.
+- "true_or_false": A nuanced statement about the target term applied to the theme. Options must be ["TRUE ✓", "FALSE ✗"].
+- "listening_dictation": A complete, natural sentence about the theme that uses the target term for audio transcription.
+- "speaking_drill": An impactful sentence about the theme for pronunciation practice.
+
+Return ONLY a pure JSON array of ${batchCards.length} objects:
+[
+  {
+    "target_term": "exact term from list",
+    "type": "context_scenario" | "gap_fill" | "collocation_match" | "true_or_false" | "listening_dictation" | "speaking_drill",
+    "prompt": "Complete, beautifully written prompt or sentence with context",
+    "options": ["opt1", "opt2", "opt3", "opt4"],
+    "correct_answer": "exact correct option or term",
+    "sentence": "full sentence for speaking/listening or null",
+    "explanation": "Clear, concise C1 explanation of why this term is used here"
+  }
+]`;
+
+        const raw = await callGemini(prompt, 0.3);
+        const match = raw.match(/\[[\s\S]*\]/);
+        if (!match) throw new Error("Could not parse AI questions");
+        const parsed = JSON.parse(match[0]);
+
+        return parsed.map((q, idx) => {
+          const card = batchCards.find(c => c.term.toLowerCase() === (q.target_term || '').toLowerCase()) || batchCards[idx] || batchCards[0];
+          return {
+            card: card,
+            type: q.type || 'context_scenario',
+            term: card.term,
+            answer: q.correct_answer || card.term,
+            prompt: q.prompt,
+            options: q.options || (['context_scenario', 'collocation_match'].includes(q.type) ? [card.term] : null),
+            sentence: q.sentence || card.fill_blank_prompt?.replace(/____/g, card.term) || card.term,
+            explanation: q.explanation || `"${card.term}" fits naturally in this context.`
+          };
+        });
+      }
+
+      let fullSet = [];
+      try {
+        const [b1, b2] = await Promise.all([requestBatch(batch1), requestBatch(batch2)]);
+        fullSet = [...b1, ...b2];
+      } catch (err) {
+        console.warn("Parallel batch generation failed, trying single batch:", err);
+        fullSet = await requestBatch(selected.slice(0, 12));
+      }
+
+      if (fullSet.length >= 10) {
+        localStorage.setItem(cacheKey, JSON.stringify(fullSet));
+        return fullSet;
+      }
+      throw new Error("Too few AI questions generated");
     }
 
     let workoutQuestions = [];
@@ -1209,16 +1325,30 @@ Be specific and intellectually interesting. Return ONLY JSON:
     let workoutAnswerLocked = false;
     let workoutAutoAdvanceTimer = null;
 
-    function startWorkout() {
-      workoutQuestions = buildWorkoutQuestions(cardsData, currentTheme);
+    async function startWorkout() {
       workoutCurrentIdx = 0;
       workoutScore = 0;
       workoutAnswerLocked = false;
       if (workoutAutoAdvanceTimer) clearTimeout(workoutAutoAdvanceTimer);
 
-      document.getElementById('workout-q-container').classList.remove('hidden');
-      document.getElementById('workout-results-container').classList.add('hidden');
       openModal('workout-modal');
+      document.getElementById('workout-q-container').classList.add('hidden');
+      document.getElementById('workout-results-container').classList.add('hidden');
+      const loadEl = document.getElementById('workout-loading-container');
+      if (loadEl) {
+        loadEl.classList.remove('hidden');
+        document.getElementById('workout-loading-subtext').innerText = `Weaving your notes database into: "${currentTheme?.micro || 'Today\'s Theme'}"...`;
+      }
+
+      try {
+        workoutQuestions = await getOrGenerateDailyWorkout(cardsData, currentTheme);
+      } catch (err) {
+        console.warn("AI generation failed, using clean fallback:", err);
+        workoutQuestions = buildCleanFallbackQuestions(cardsData, currentTheme);
+      }
+
+      if (loadEl) loadEl.classList.add('hidden');
+      document.getElementById('workout-q-container').classList.remove('hidden');
       renderWorkoutQuestion();
     }
 
@@ -1431,7 +1561,9 @@ Be specific and intellectually interesting. Return ONLY JSON:
       const q = workoutQuestions[workoutCurrentIdx];
       const target = q.answer.trim().toLowerCase();
       
-      const isCorrect = val === target || target.includes(val) && val.length > 3;
+      const cleanVal = val.replace(/[.,!?'"]/g, '').trim();
+      const cleanTarget = target.replace(/[.,!?'"]/g, '').trim();
+      const isCorrect = cleanVal === cleanTarget || (cleanTarget.length > 3 && (cleanVal.includes(cleanTarget) || cleanTarget.includes(cleanVal) && cleanVal.length >= cleanTarget.length - 2));
       processWorkoutAnswer(isCorrect);
     }
 
@@ -1484,8 +1616,9 @@ Be specific and intellectually interesting. Return ONLY JSON:
       }
 
       detailsEl.innerHTML = `
+        ${q.explanation ? `<div class="bg-amber-100/70 border border-amber-300 text-amber-950 p-2.5 rounded-xl font-medium text-xs mb-1.5">💡 ${q.explanation}</div>` : ''}
         <div class="font-semibold text-slate-800">${card.term}: ${card.definition_en}</div>
-        <div class="text-slate-600 mt-1 italic">${card.fill_blank_prompt}</div>
+        ${card.fill_blank_prompt ? `<div class="text-slate-600 mt-1 italic">"${card.fill_blank_prompt.replace(/____/g, `<strong>${card.term}</strong>`)}"</div>` : ''}
         <div class="text-slate-700 mt-1.5 font-medium">🇮🇹 Traduzione: <span class="font-bold">${card.translation_it}</span></div>
       `;
 
